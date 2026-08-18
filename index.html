@@ -406,9 +406,69 @@
       {id:"d6",category:"mente",text:"Medita 10 minutos",xp:15,done:false,custom:false,photo:null}
     ],
     log: [{text:"Bienvenido, cazador. El sistema ha comenzado a rastrear tu progreso.", tone:"info"}],
-    newCat: "salud"
+    newCat: "salud",
+    lastActiveDate: null,
+    motivationShownDate: null
   };
   var idCounter = 1;
+  var STORAGE_KEY = "save_app_state_v1";
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+  }
+
+  function saveState(){
+    try{
+      var toSave = {
+        username: state.username,
+        hp: state.hp, maxHp: state.maxHp, xp: state.xp, level: state.level, streak: state.streak,
+        fallen: state.fallen,
+        missions: state.missions,
+        log: state.log,
+        lastActiveDate: state.lastActiveDate,
+        motivationShownDate: state.motivationShownDate,
+        idCounter: idCounter
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+    }catch(e){
+      console.warn("No se pudo guardar el progreso:", e);
+    }
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      var parsed = JSON.parse(raw);
+      if (!parsed || !parsed.username) return false;
+      Object.assign(state, parsed);
+      if (parsed.idCounter) idCounter = parsed.idCounter;
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  // Compress a photo before storing it, so localStorage doesn't fill up fast
+  function compressImage(dataUrl, maxWidth, quality, callback){
+    var img = new Image();
+    img.onload = function(){
+      var scale = Math.min(1, maxWidth / img.width);
+      var canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.width * scale));
+      canvas.height = Math.max(1, Math.round(img.height * scale));
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      try{
+        callback(canvas.toDataURL("image/jpeg", quality));
+      }catch(e){
+        callback(dataUrl);
+      }
+    };
+    img.onerror = function(){ callback(dataUrl); };
+    img.src = dataUrl;
+  }
 
   function markActivity(){ state.lastActivity = Date.now(); state.notifiedThisWindow = false; }
   document.addEventListener("click", markActivity);
@@ -421,7 +481,32 @@
   }
 
   setTimeout(function(){
-    showScreen("screen-onboarding");
+    var hasSaved = loadState();
+    var today = todayStr();
+
+    if (hasSaved && state.username){
+      // If a day has passed since we last recorded activity, resolve that day
+      // the same way endDay() would: apply the HP/streak consequence, then reset.
+      if (state.lastActiveDate && state.lastActiveDate !== today && !state.fallen){
+        endDay();
+      }
+      state.lastActiveDate = today;
+      saveState();
+
+      if (state.motivationShownDate !== today){
+        document.getElementById("mot-greeting").textContent = "MENSAJE DEL DÍA PARA " + state.username.toUpperCase();
+        document.getElementById("mot-quote").textContent = "\u201C" + dailyQuote() + "\u201D";
+        document.getElementById("mot-date").textContent = new Date().toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+        showScreen("screen-motivation");
+      } else {
+        document.getElementById("topbar-user").textContent = state.username.toUpperCase();
+        showScreen("screen-app");
+        requestNotifPermission();
+        render();
+      }
+    } else {
+      showScreen("screen-onboarding");
+    }
   }, 1600);
 
   // ---------------- Onboarding ----------------
@@ -432,6 +517,8 @@
   });
   usernameContinue.addEventListener("click", function(){
     state.username = usernameInput.value.trim();
+    state.lastActiveDate = todayStr();
+    saveState();
     document.getElementById("mot-greeting").textContent = "MENSAJE DEL DÍA PARA " + state.username.toUpperCase();
     document.getElementById("mot-quote").textContent = "\u201C" + dailyQuote() + "\u201D";
     document.getElementById("mot-date").textContent = new Date().toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
@@ -439,6 +526,8 @@
   });
 
   document.getElementById("mot-continue").addEventListener("click", function(){
+    state.motivationShownDate = todayStr();
+    saveState();
     document.getElementById("topbar-user").textContent = state.username.toUpperCase();
     showScreen("screen-app");
     requestNotifPermission();
@@ -506,16 +595,18 @@
     if (state.fallen || !file) return;
     var reader = new FileReader();
     reader.onload = function(){
-      var m = state.missions.find(function(mm){ return mm.id === id; });
-      if (!m) return;
-      if (!m.done){
-        gainXp(m.xp);
-        flashFx("xp");
-        pushLog('Evidencia recibida para "' + m.text + '" (+' + m.xp + ' XP)', "xp");
-      }
-      m.done = true;
-      m.photo = reader.result;
-      render();
+      compressImage(reader.result, 480, 0.6, function(compressed){
+        var m = state.missions.find(function(mm){ return mm.id === id; });
+        if (!m) return;
+        if (!m.done){
+          gainXp(m.xp);
+          flashFx("xp");
+          pushLog('Evidencia recibida para "' + m.text + '" (+' + m.xp + ' XP)', "xp");
+        }
+        m.done = true;
+        m.photo = compressed;
+        render();
+      });
     };
     reader.readAsDataURL(file);
   }
@@ -685,6 +776,8 @@
 
     // fallen overlay
     document.getElementById("fallen-overlay").style.display = state.fallen ? "flex" : "none";
+
+    if (state.username) saveState();
   }
 
   function openPreview(src, text){
