@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no" />
+<title>SAVE</title>
+<meta name="theme-color" content="#05070c" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="SAVE" />
+<meta name="mobile-web-app-capable" content="yes" />
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22SAVE%22%2C%22short_name%22%3A%22SAVE%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2305070c%22%2C%22theme_color%22%3A%22%2305070c%22%7D" />
+<style>
+  :root{
+    --void:#05070c;
+    --panel:#0f1521;
+    --panel-alt:#131a29;
+    --border:#232d42;
+    --border-bright:#3a4a6b;
+    --xp:#4fd1c5;
+    --hp:#ef4444;
+    --hp-dim:#7a2727;
+    --streak:#f2b705;
+    --text:#e8ecf5;
+    --text-muted:#6b7690;
+    --text-faint:#4a5470;
+    --mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    --sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--void); color:var(--text); font-family:var(--sans); overscroll-behavior-y:none;}
+  body{
+    min-height:100vh;
+    min-height:100dvh;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  button, input{font-family:inherit;}
+  .screen{
+    display:none;
+    min-height:100vh;
+    min-height:100dvh;
+    flex-direction:column;
+  }
+  .screen.active{display:flex;}
+
+  /* ---------- Splash ---------- */
+  #screen-splash{align-items:center; justify-content:center; background:var(--void); position:relative; overflow:hidden;}
+  .splash-glow{
+    position:absolute; width:340px; height:340px; border-radius:50%;
+    background:radial-gradient(circle, rgba(79,209,197,0.18), transparent 70%);
+    animation:pulseGlow 2.6s ease-in-out infinite;
+  }
+  @keyframes pulseGlow{0%,100%{opacity:0.5; transform:scale(1);}50%{opacity:1; transform:scale(1.08);}}
+  .logo-v{
+    font-family:var(--mono);
+    font-size:120px;
+    font-weight:800;
+    color:var(--text);
+    letter-spacing:-6px;
+    text-shadow:0 0 30px rgba(79,209,197,0.45);
+    position:relative;
+    z-index:1;
+    line-height:1;
+  }
+  .logo-v span{color:var(--xp);}
+  .logo-word{
+    font-family:var(--mono);
+    font-size:15px;
+    letter-spacing:0.55em;
+    color:var(--text-muted);
+    margin-top:6px;
+    position:relative;
+    z-index:1;
+    padding-left:0.55em;
+  }
+  .splash-sub{
+    position:absolute; bottom:60px; font-family:var(--mono); font-size:10.5px;
+    letter-spacing:0.15em; color:var(--text-faint);
+  }
+
+  /* ---------- Onboarding ---------- */
+  #screen-onboarding{align-items:center; justify-content:center; padding:24px;}
+  .ob-card{width:100%; max-width:380px; text-align:center;}
+  .ob-mark{font-family:var(--mono); font-size:44px; font-weight:800; color:var(--xp); letter-spacing:-2px; margin-bottom:6px;}
+  .ob-title{font-size:19px; font-weight:700; color:var(--text); margin-bottom:6px;}
+  .ob-sub{font-size:13px; color:var(--text-muted); margin-bottom:28px; line-height:1.5;}
+  .ob-input{
+    width:100%; background:var(--panel-alt); border:1px solid var(--border); color:var(--text);
+    border-radius:10px; padding:14px 16px; font-size:15px; outline:none; text-align:center;
+    letter-spacing:0.02em;
+  }
+  .ob-input:focus{border-color:var(--xp);}
+  .ob-btn{
+    width:100%; margin-top:14px; background:var(--xp); color:#06231f; border:none;
+    border-radius:10px; padding:14px; font-weight:700; font-size:14.5px; cursor:pointer;
+  }
+  .ob-btn:disabled{opacity:0.35; cursor:not-allowed;}
+  .ob-hint{margin-top:16px; font-family:var(--mono); font-size:10px; color:var(--text-faint); letter-spacing:0.08em;}
+
+  /* ---------- Motivation ---------- */
+  #screen-motivation{align-items:center; justify-content:center; padding:28px; text-align:center;}
+  .mot-eyebrow{font-family:var(--mono); font-size:10.5px; letter-spacing:0.2em; color:var(--text-faint); margin-bottom:22px;}
+  .mot-quote{font-size:22px; line-height:1.45; font-weight:600; color:var(--text); max-width:360px; margin-bottom:10px;}
+  .mot-date{font-family:var(--mono); font-size:11px; color:var(--text-muted); margin-bottom:36px;}
+  .mot-btn{
+    background:var(--panel-alt); border:1px solid var(--border-bright); color:var(--text);
+    border-radius:10px; padding:14px 32px; font-weight:600; font-size:14px; cursor:pointer;
+  }
+
+  /* ---------- Main app ---------- */
+  #screen-app{align-items:stretch;}
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px 8px;
+  }
+  .topbar-brand{display:flex; align-items:center; gap:8px;}
+  .topbar-v{font-family:var(--mono); font-weight:800; color:var(--xp); font-size:18px;}
+  .topbar-word{font-family:var(--mono); font-size:11px; letter-spacing:0.3em; color:var(--text-muted);}
+  .topbar-user{font-family:var(--mono); font-size:11px; color:var(--text-faint);}
+
+  .frame{width:100%; max-width:460px; margin:0 auto; padding:8px 14px 30px; flex:1;}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:10px;}
+  .corner-brackets{position:relative;}
+  .corner-brackets::before, .corner-brackets::after{
+    content:""; position:absolute; width:12px; height:12px; border:2px solid var(--xp); opacity:0.6;
+  }
+  .corner-brackets::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .corner-brackets::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+
+  .eyebrow{font-family:var(--mono); font-size:10.5px; letter-spacing:0.12em; color:var(--text-muted); font-weight:600;}
+  .header-row{display:flex; justify-content:space-between; align-items:flex-start;}
+  .rank-line{display:flex; align-items:baseline; gap:8px; margin-top:6px;}
+  .level-badge{font-family:var(--mono); font-size:22px; font-weight:800; color:var(--xp);}
+  .rank-name{font-size:15px; color:var(--text); font-weight:600;}
+  .streak-box{
+    display:flex; align-items:center; gap:5px; background:var(--panel-alt); border:1px solid var(--border);
+    border-radius:8px; padding:6px 10px; font-family:var(--mono); font-size:14px;
+  }
+  .bar-label-row{display:flex; justify-content:space-between; margin-bottom:5px;}
+  .bar-label{font-family:var(--mono); font-size:10.5px; color:var(--text-muted); letter-spacing:0.08em;}
+  .bar-value{font-family:var(--mono); font-size:11px; color:var(--text-faint);}
+  .bar-track{height:10px; background:#0a0f1a; border:1px solid var(--border); border-radius:5px; overflow:hidden;}
+  .bar-fill{height:100%; border-radius:4px; transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .xp-fill{background:linear-gradient(90deg,#2fa89c,var(--xp)); box-shadow:0 0 8px rgba(79,209,197,.5);}
+  .hp-fill{background:#c73e3e; transition:width .5s ease, background .3s ease; box-shadow:0 0 8px rgba(239,68,68,.4);}
+
+  .icon-btn{
+    background:var(--panel-alt); border:1px solid var(--border); color:var(--text); border-radius:8px;
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .icon-btn:disabled{opacity:.4; cursor:not-allowed;}
+
+  .section-head-row{display:flex; justify-content:space-between; align-items:center;}
+
+  .add-box{margin-top:10px; padding:12px; background:var(--panel-alt); border:1px solid var(--border); border-radius:8px;}
+  .text-input{width:100%; background:#0a0f1a; border:1px solid var(--border); color:var(--text); border-radius:6px; padding:11px 12px; font-size:15px; outline:none;}
+  .text-input:focus{border-color:var(--xp);}
+  .cat-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:9px;}
+  .cat-chip{display:flex; align-items:center; gap:5px; background:#0a0f1a; border:1px solid var(--border); color:var(--text-muted); border-radius:20px; padding:7px 11px; font-size:11px; font-family:var(--mono); letter-spacing:.05em; cursor:pointer;}
+  .cat-chip.active{}
+  .confirm-btn{margin-top:10px; width:100%; background:var(--xp); color:#06231f; border:none; border-radius:8px; padding:12px; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:4px; cursor:pointer;}
+
+  .cat-title{display:flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; margin-bottom:6px;}
+  .mission-row{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--border);}
+  .mission-row:last-child{border-bottom:none;}
+  .mission-row.done .mission-text{color:var(--text-faint); text-decoration:line-through;}
+  .mission-text{flex:1; font-size:14px; color:var(--text);}
+  .mission-xp{font-family:var(--mono); font-size:11px; color:var(--xp); opacity:.8;}
+  .trash-btn{background:none; border:none; color:var(--text-faint); cursor:pointer; padding:6px; display:flex;}
+  .trash-btn:hover{color:var(--hp);}
+
+  .camera-slot{position:relative; width:30px; height:30px; min-width:30px; border-radius:6px; border:1.5px solid; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  .camera-slot input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer;}
+  .evidence-thumb{position:relative; width:30px; height:30px; min-width:30px; border-radius:6px; overflow:hidden; border:1.5px solid var(--xp); padding:0; cursor:pointer; background:none;}
+  .evidence-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .thumb-check{position:absolute; bottom:-3px; right:-3px; width:14px; height:14px; border-radius:50%; background:var(--xp); display:flex; align-items:center; justify-content:center; border:1.5px solid var(--panel); font-size:9px; color:#080b12; font-weight:900;}
+
+  .end-day-btn{width:100%; margin-top:14px; padding:15px; background:var(--panel); border:1px solid var(--border); color:var(--text-muted); border-radius:10px; font-weight:600; font-size:14px; cursor:pointer;}
+  .end-day-btn:disabled{opacity:.4; cursor:not-allowed;}
+  .end-day-btn.ready{background:linear-gradient(90deg,#1c4a44,#26665d); border-color:var(--xp); color:#d8fbf6; box-shadow:0 0 16px rgba(79,209,197,.25);}
+
+  .log-line{font-family:var(--mono); font-size:11px; line-height:1.6; color:var(--text-muted);}
+  .log-line.xp{color:var(--xp);}
+  .log-line.hp{color:#f18b8b;}
+  .log-line.level{color:var(--streak);}
+  .log-line.streak{color:var(--streak);}
+  .log-line.notify{color:#93a4ff;}
+
+  .overlay{position:fixed; inset:0; background:rgba(5,7,12,.85); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px;}
+  .overlay-panel{background:var(--panel); border:1px solid var(--hp-dim); border-radius:12px; padding:30px 24px; text-align:center; max-width:340px;}
+  .overlay-title{font-family:var(--mono); font-size:22px; font-weight:800; color:var(--hp); letter-spacing:.08em; margin-top:12px;}
+  .overlay-text{color:var(--text-muted); font-size:13px; margin-top:10px; line-height:1.5;}
+
+  .preview-panel{background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; max-width:380px; width:100%;}
+  .preview-head{display:flex; justify-content:space-between; align-items:center; padding:10px 12px; font-size:13px; color:var(--text); border-bottom:1px solid var(--border);}
+  .preview-img{width:100%; max-height:60vh; object-fit:contain; display:block; background:#000;}
+
+  .test-notif-btn{margin-top:10px; width:100%; background:none; border:1px dashed var(--border-bright); color:var(--text-faint); border-radius:8px; padding:8px; font-family:var(--mono); font-size:10px; letter-spacing:.05em; cursor:pointer;}
+
+  .flash{position:fixed; inset:0; pointer-events:none; z-index:40; animation:flashFade .5s ease-out;}
+  .flash-xp{background:radial-gradient(circle at center, rgba(79,209,197,.15), transparent 70%);}
+  .flash-hp{background:radial-gradient(circle at center, rgba(239,68,68,.18), transparent 70%);}
+  .flash-level{background:radial-gradient(circle at center, rgba(242,183,5,.2), transparent 70%);}
+  @keyframes flashFade{from{opacity:1;}to{opacity:0;}}
+
+  svg{display:block;}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div class="screen active" id="screen-splash">
+  <div class="splash-glow"></div>
+  <div style="text-align:center;">
+    <div class="logo-v">SA<span>V</span>E</div>
+    <div class="logo-word">LEVEL UP YOUR LIFE</div>
+  </div>
+  <div class="splash-sub">INICIANDO SISTEMA...</div>
+</div>
+
+<!-- ONBOARDING -->
+<div class="screen" id="screen-onboarding">
+  <div class="ob-card">
+    <div class="ob-mark">V</div>
+    <div class="ob-title">Bienvenido a SAVE</div>
+    <div class="ob-sub">Antes de empezar, el sistema necesita registrar tu identidad de jugador.</div>
+    <input class="ob-input" id="username-input" placeholder="Tu nombre de usuario" maxlength="20" autocomplete="off" />
+    <button class="ob-btn" id="username-continue" disabled>Continuar</button>
+    <div class="ob-hint">ESTE NOMBRE TE IDENTIFICARÁ EN EL SISTEMA</div>
+  </div>
+</div>
+
+<!-- MOTIVATION -->
+<div class="screen" id="screen-motivation">
+  <div class="mot-eyebrow" id="mot-greeting">MENSAJE DEL DÍA PARA —</div>
+  <div class="mot-quote" id="mot-quote">"..."</div>
+  <div class="mot-date" id="mot-date"></div>
+  <button class="mot-btn" id="mot-continue">Entrar al sistema</button>
+</div>
+
+<!-- MAIN APP -->
+<div class="screen" id="screen-app">
+  <div class="topbar">
+    <div class="topbar-brand"><span class="topbar-v">V</span><span class="topbar-word">SAVE</span></div>
+    <div class="topbar-user" id="topbar-user"></div>
+  </div>
+
+  <div class="frame">
+    <!-- Status window -->
+    <div class="panel corner-brackets" style="padding:18px 18px 16px;">
+      <div class="header-row">
+        <div>
+          <div class="eyebrow">SISTEMA · ESTADO DEL JUGADOR</div>
+          <div class="rank-line">
+            <span class="level-badge" id="level-badge">LV 1</span>
+            <span class="rank-name" id="rank-name">Novato</span>
+          </div>
+        </div>
+        <div class="streak-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" id="flame-icon"><path d="M12 2c1 3-2 4-2 7a4 4 0 1 0 8 0c0-1-.5-2-1-3 2 1 3 3 3 6a6 6 0 1 1-12 0c0-4 2-6 4-10z" fill="#4a5470"/></svg>
+          <span id="streak-count" style="font-weight:700; color:#4a5470;">0</span>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="bar-label-row"><span class="bar-label">XP</span><span class="bar-value" id="xp-value">0 / 120</span></div>
+        <div class="bar-track"><div class="bar-fill xp-fill" id="xp-fill" style="width:0%;"></div></div>
+      </div>
+      <div style="margin-top:10px;">
+        <div class="bar-label-row"><span class="bar-label">VIDA</span><span class="bar-value" id="hp-value">100 / 100</span></div>
+        <div class="bar-track"><div class="bar-fill hp-fill" id="hp-fill" style="width:100%;"></div></div>
+      </div>
+    </div>
+
+    <!-- Missions -->
+    <div class="panel" style="margin-top:14px; padding:16px 16px 8px;">
+      <div class="section-head-row">
+        <div class="eyebrow" id="missions-count">MISIONES DE HOY · 0/0</div>
+        <button class="icon-btn" id="add-mission-toggle">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8ecf5" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+      </div>
+
+      <div class="add-box" id="add-box" style="display:none;">
+        <input class="text-input" id="new-mission-text" placeholder="Escribe tu misión..." maxlength="80" />
+        <div class="cat-row" id="cat-row"></div>
+        <button class="confirm-btn" id="confirm-add">Registrar misión</button>
+      </div>
+
+      <div id="missions-container" style="margin-top:8px;"></div>
+    </div>
+
+    <button class="end-day-btn" id="end-day-btn">Cerrar el día</button>
+
+    <!-- Log -->
+    <div class="panel" style="margin-top:14px; padding:12px 14px; max-height:150px; overflow-y:auto;" id="log-panel">
+      <div class="eyebrow">REGISTRO DEL SISTEMA</div>
+      <div id="log-container" style="margin-top:8px;"></div>
+    </div>
+    <button class="test-notif-btn" id="test-notif-btn">SIMULAR NOTIFICACIÓN DE INACTIVIDAD (DEMO)</button>
+  </div>
+</div>
+
+<!-- FALLEN OVERLAY -->
+<div class="overlay" id="fallen-overlay" style="display:none;">
+  <div class="overlay-panel corner-brackets">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="1.8"><circle cx="12" cy="10" r="7"/><path d="M9 21l.5-3M15 21l-.5-3M8 10.5a1 1 0 102 0 1 1 0 00-2 0zM14 10.5a1 1 0 102 0 1 1 0 00-2 0z"/></svg>
+    <div class="overlay-title">HAS CAÍDO</div>
+    <p class="overlay-text">Tu vida llegó a cero. El sistema conserva tu nivel, pero tu vida y tu racha vuelven al punto de partida.</p>
+    <button class="confirm-btn" id="revive-btn">Levantarse de nuevo</button>
+  </div>
+</div>
+
+<!-- PHOTO PREVIEW -->
+<div class="overlay" id="preview-overlay" style="display:none;">
+  <div class="preview-panel">
+    <div class="preview-head">
+      <span id="preview-title"></span>
+      <button class="icon-btn" id="preview-close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8ecf5" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <img class="preview-img" id="preview-img" src="" alt="Evidencia" />
+  </div>
+</div>
+
+<div id="flash-root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------------- Quotes ----------------
+  var QUOTES = [
+    "Un cazador que no avanza, retrocede.",
+    "Hoy no necesitas motivación. Necesitas una misión.",
+    "Cada misión cumplida es un nivel que nadie te puede quitar.",
+    "El sistema no juzga tus excusas, solo registra tus acciones.",
+    "Tu vida de mañana se construye con la misión de hoy.",
+    "No rompas la racha. La racha te está construyendo a ti.",
+    "Los débiles esperan motivación. Los fuertes crean misiones.",
+    "Sube de nivel en silencio. Que hablen tus estadísticas.",
+    "Cada día es una mazmorra distinta. Entra preparado.",
+    "El único jefe final eres tú mismo ayer.",
+    "No hay experiencia sin esfuerzo real.",
+    "La constancia es la habilidad más subestimada del juego.",
+    "Hoy suma. Mañana multiplica.",
+    "Nadie ve el grind. Todos ven el nivel.",
+    "Tu HP baja cuando dejas de intentarlo, no cuando fallas.",
+    "El sistema registra presencia, no intención.",
+    "Small steps. Big stats.",
+    "Cumple la misión antes de que la excusa te cumpla a ti.",
+    "Cada racha rota es una lección, no una derrota final.",
+    "El personaje que quieres ser se entrena hoy, no algún día."
+  ];
+
+  function dayOfYear(d){
+    var start = new Date(d.getFullYear(), 0, 0);
+    var diff = d - start;
+    return Math.floor(diff / 86400000);
+  }
+  function dailyQuote(){
+    var idx = dayOfYear(new Date()) % QUOTES.length;
+    return QUOTES[idx];
+  }
+
+  // ---------------- Categories ----------------
+  var CATEGORIES = {
+    salud:      { label:"SALUD",       color:"#ef4444" },
+    disciplina: { label:"DISCIPLINA",  color:"#4fd1c5" },
+    mente:      { label:"MENTE",       color:"#a78bfa" },
+    social:     { label:"SOCIAL",      color:"#f2b705" }
+  };
+  var ICONS = {
+    salud: '<path d="M12 21s-7-4.35-9.5-8.5C.8 9 2 5.5 5.5 4.7 8 4.1 10 5.3 12 7.5 14 5.3 16 4.1 18.5 4.7 22 5.5 23.2 9 21.5 12.5 19 16.65 12 21 12 21z"/>',
+    disciplina: '<path d="M14.5 17.5L3 6V3h3l11.5 11.5M13 19l6-6M16 16l4 4M19 21l2-2"/>',
+    mente: '<path d="M9.5 2a4 4 0 00-4 4c0 .6.13 1.16.36 1.66A3.5 3.5 0 004 11a3.5 3.5 0 002 3.17V16a4 4 0 004 4h1V6a4 4 0 00-1.5-4zM14.5 2a4 4 0 014 4c0 .6-.13 1.16-.36 1.66A3.5 3.5 0 0120 11a3.5 3.5 0 01-2 3.17V16a4 4 0 01-4 4h-1V6a4 4 0 011.5-4z"/>',
+    social: '<circle cx="9" cy="8" r="3"/><path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6M16 8a3 3 0 110-6M17.5 14c2.6.6 4.5 2.4 4.5 6"/>'
+  };
+  function catIcon(key, color){
+    return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="'+color+'" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+ICONS[key]+'</svg>';
+  }
+
+  var RANKS = [{min:1,name:"Novato"},{min:5,name:"Cazador"},{min:10,name:"Veterano"},{min:18,name:"Élite"},{min:30,name:"Leyenda"}];
+  function rankFor(level){
+    var r = RANKS[0];
+    for (var i=0;i<RANKS.length;i++){ if(level>=RANKS[i].min) r = RANKS[i]; }
+    return r.name;
+  }
+  function xpToNext(level){ return 80 + level*40; }
+
+  // ---------------- State ----------------
+  var state = {
+    username: "",
+    hp: 100, maxHp: 100, xp: 0, level: 1, streak: 0,
+    fallen: false,
+    lastActivity: Date.now(),
+    notifiedThisWindow: false,
+    missions: [
+      {id:"d1",category:"salud",text:"Toma 2L de agua",xp:15,done:false,custom:false,photo:null},
+      {id:"d2",category:"salud",text:"30 min de ejercicio",xp:25,done:false,custom:false,photo:null},
+      {id:"d3",category:"disciplina",text:"1h sin redes sociales",xp:20,done:false,custom:false,photo:null},
+      {id:"d4",category:"disciplina",text:"Ordena tu espacio",xp:10,done:false,custom:false,photo:null},
+      {id:"d5",category:"mente",text:"Lee 15 minutos",xp:15,done:false,custom:false,photo:null},
+      {id:"d6",category:"mente",text:"Medita 10 minutos",xp:15,done:false,custom:false,photo:null}
+    ],
+    log: [{text:"Bienvenido, cazador. El sistema ha comenzado a rastrear tu progreso.", tone:"info"}],
+    newCat: "salud"
+  };
+  var idCounter = 1;
+
+  function markActivity(){ state.lastActivity = Date.now(); state.notifiedThisWindow = false; }
+  document.addEventListener("click", markActivity);
+  document.addEventListener("touchstart", markActivity, {passive:true});
+
+  // ---------------- Screen nav ----------------
+  function showScreen(id){
+    document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+    document.getElementById(id).classList.add("active");
+  }
+
+  setTimeout(function(){
+    showScreen("screen-onboarding");
+  }, 1600);
+
+  // ---------------- Onboarding ----------------
+  var usernameInput = document.getElementById("username-input");
+  var usernameContinue = document.getElementById("username-continue");
+  usernameInput.addEventListener("input", function(){
+    usernameContinue.disabled = usernameInput.value.trim().length === 0;
+  });
+  usernameContinue.addEventListener("click", function(){
+    state.username = usernameInput.value.trim();
+    document.getElementById("mot-greeting").textContent = "MENSAJE DEL DÍA PARA " + state.username.toUpperCase();
+    document.getElementById("mot-quote").textContent = "\u201C" + dailyQuote() + "\u201D";
+    document.getElementById("mot-date").textContent = new Date().toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+    showScreen("screen-motivation");
+  });
+
+  document.getElementById("mot-continue").addEventListener("click", function(){
+    document.getElementById("topbar-user").textContent = state.username.toUpperCase();
+    showScreen("screen-app");
+    requestNotifPermission();
+    render();
+  });
+
+  // ---------------- Notifications ----------------
+  function requestNotifPermission(){
+    if ("Notification" in window && Notification.permission === "default"){
+      Notification.requestPermission();
+    }
+  }
+  function fireInactivityNotification(){
+    var body = "No se detecta actividad en SAVE. Tu racha de " + state.streak + " día(s) sigue esperando.";
+    if ("Notification" in window && Notification.permission === "granted"){
+      try{
+        new Notification("SAVE · El sistema te busca", { body: body });
+      }catch(e){}
+    }
+    pushLog("🔔 " + body, "notify");
+    state.notifiedThisWindow = true;
+    render();
+  }
+  setInterval(function(){
+    if (state.fallen) return;
+    if (!document.getElementById("screen-app").classList.contains("active")) return;
+    var elapsed = Date.now() - state.lastActivity;
+    var TWO_HOURS = 2 * 60 * 60 * 1000;
+    if (elapsed >= TWO_HOURS && !state.notifiedThisWindow){
+      fireInactivityNotification();
+    }
+  }, 60 * 1000);
+
+  document.getElementById("test-notif-btn").addEventListener("click", function(){
+    fireInactivityNotification();
+  });
+
+  // ---------------- Core logic ----------------
+  function pushLog(text, tone){
+    state.log.push({text:text, tone:tone||"info"});
+    if (state.log.length > 40) state.log.shift();
+  }
+
+  function flashFx(kind){
+    var root = document.getElementById("flash-root");
+    var div = document.createElement("div");
+    div.className = "flash flash-" + kind;
+    root.appendChild(div);
+    setTimeout(function(){ root.removeChild(div); }, 500);
+  }
+
+  function gainXp(amount){
+    state.xp += amount;
+    var need = xpToNext(state.level);
+    while (state.xp >= need){
+      state.xp -= need;
+      state.level += 1;
+      need = xpToNext(state.level);
+      flashFx("level");
+      pushLog("¡Subiste a nivel " + state.level + "! Rango: " + rankFor(state.level) + ".", "level");
+    }
+  }
+
+  function handlePhotoSelected(id, file){
+    if (state.fallen || !file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var m = state.missions.find(function(mm){ return mm.id === id; });
+      if (!m) return;
+      if (!m.done){
+        gainXp(m.xp);
+        flashFx("xp");
+        pushLog('Evidencia recibida para "' + m.text + '" (+' + m.xp + ' XP)', "xp");
+      }
+      m.done = true;
+      m.photo = reader.result;
+      render();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeEvidence(id){
+    if (state.fallen) return;
+    var m = state.missions.find(function(mm){ return mm.id === id; });
+    if (!m || !m.done) return;
+    pushLog('Evidencia eliminada de "' + m.text + '". Misión pendiente de nuevo.', "hp");
+    m.done = false;
+    m.photo = null;
+    render();
+  }
+
+  function removeMission(id){
+    state.missions = state.missions.filter(function(m){ return m.id !== id; });
+    render();
+  }
+
+  function addMission(){
+    var input = document.getElementById("new-mission-text");
+    var text = input.value.trim();
+    if (!text) return;
+    state.missions.push({id:"c"+(idCounter++), category: state.newCat, text: text, xp: 15, done:false, custom:true, photo:null});
+    pushLog('Nueva misión registrada: "' + text + '"', "info");
+    input.value = "";
+    document.getElementById("add-box").style.display = "none";
+    render();
+  }
+
+  function endDay(){
+    if (state.fallen) return;
+    var total = state.missions.length;
+    var doneCount = state.missions.filter(function(m){ return m.done; }).length;
+    var incomplete = total - doneCount;
+    if (total > 0 && incomplete === 0){
+      var bonus = 20 + state.streak * 5;
+      state.streak += 1;
+      gainXp(bonus);
+      flashFx("xp");
+      pushLog("Día completado. Racha +1. Bono de constancia: +" + bonus + " XP.", "streak");
+    } else if (total > 0){
+      var dmg = Math.min(state.hp, incomplete * 15);
+      state.streak = 0;
+      state.hp = Math.max(0, state.hp - dmg);
+      flashFx("hp");
+      pushLog("Día cerrado con " + incomplete + " misión(es) sin cumplir. Racha perdida. -" + dmg + " HP.", "hp");
+      if (state.hp <= 0){
+        state.fallen = true;
+        pushLog("HP a 0. Has caído. El sistema espera tu resurrección.", "hp");
+      }
+    }
+    state.missions = state.missions.filter(function(m){ return !m.custom; }).map(function(m){ return Object.assign({}, m, {done:false, photo:null}); });
+    render();
+  }
+
+  function revive(){
+    state.hp = 100; state.streak = 0; state.fallen = false;
+    pushLog("Has vuelto a levantarte. HP restaurado. Racha reiniciada.", "info");
+    render();
+  }
+
+  // ---------------- Render ----------------
+  function render(){
+    document.getElementById("level-badge").textContent = "LV " + state.level;
+    document.getElementById("rank-name").textContent = rankFor(state.level);
+    document.getElementById("streak-count").textContent = state.streak;
+    document.getElementById("streak-count").style.color = state.streak > 0 ? "#f2b705" : "#4a5470";
+    document.getElementById("flame-icon").querySelector("path").setAttribute("fill", state.streak > 0 ? "#f2b705" : "#4a5470");
+
+    var need = xpToNext(state.level);
+    document.getElementById("xp-value").textContent = state.xp + " / " + need;
+    document.getElementById("xp-fill").style.width = Math.min(100, (state.xp/need)*100) + "%";
+
+    document.getElementById("hp-value").textContent = state.hp + " / " + state.maxHp;
+    var hpFill = document.getElementById("hp-fill");
+    hpFill.style.width = (state.hp/state.maxHp)*100 + "%";
+    hpFill.style.background = state.hp < 30 ? "#ef4444" : "#c73e3e";
+
+    var total = state.missions.length;
+    var doneCount = state.missions.filter(function(m){ return m.done; }).length;
+    document.getElementById("missions-count").textContent = "MISIONES DE HOY · " + doneCount + "/" + total;
+
+    // missions container
+    var container = document.getElementById("missions-container");
+    container.innerHTML = "";
+    Object.keys(CATEGORIES).forEach(function(key){
+      var items = state.missions.filter(function(m){ return m.category === key; });
+      if (items.length === 0) return;
+      var cat = CATEGORIES[key];
+      var wrap = document.createElement("div");
+      wrap.style.marginBottom = "14px";
+      var title = document.createElement("div");
+      title.className = "cat-title";
+      title.style.color = cat.color;
+      title.innerHTML = catIcon(key, cat.color) + cat.label;
+      wrap.appendChild(title);
+
+      items.forEach(function(m){
+        var row = document.createElement("div");
+        row.className = "mission-row" + (m.done ? " done" : "");
+
+        var leftEl;
+        if (m.done){
+          leftEl = document.createElement("button");
+          leftEl.className = "evidence-thumb";
+          leftEl.innerHTML = '<img src="'+m.photo+'" alt="" /><span class="thumb-check">✓</span>';
+          leftEl.addEventListener("click", function(){ openPreview(m.photo, m.text); });
+        } else {
+          leftEl = document.createElement("label");
+          leftEl.className = "camera-slot";
+          leftEl.style.borderColor = cat.color + "88";
+          leftEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+cat.color+'" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
+          var input = document.createElement("input");
+          input.type = "file"; input.accept = "image/*"; input.setAttribute("capture","environment");
+          input.addEventListener("change", function(e){ handlePhotoSelected(m.id, e.target.files[0]); });
+          leftEl.appendChild(input);
+        }
+        row.appendChild(leftEl);
+
+        var textEl = document.createElement("span");
+        textEl.className = "mission-text";
+        textEl.textContent = m.text;
+        row.appendChild(textEl);
+
+        var xpEl = document.createElement("span");
+        xpEl.className = "mission-xp";
+        xpEl.textContent = "+" + m.xp;
+        row.appendChild(xpEl);
+
+        if (m.done){
+          var undoBtn = document.createElement("button");
+          undoBtn.className = "trash-btn";
+          undoBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
+          undoBtn.addEventListener("click", function(){ removeEvidence(m.id); });
+          row.appendChild(undoBtn);
+        } else if (m.custom){
+          var delBtn = document.createElement("button");
+          delBtn.className = "trash-btn";
+          delBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>';
+          delBtn.addEventListener("click", function(){ removeMission(m.id); });
+          row.appendChild(delBtn);
+        }
+
+        wrap.appendChild(row);
+      });
+      container.appendChild(wrap);
+    });
+
+    // end day button
+    var endBtn = document.getElementById("end-day-btn");
+    var allDone = total > 0 && doneCount === total;
+    endBtn.disabled = state.fallen || total === 0;
+    endBtn.className = "end-day-btn" + (allDone ? " ready" : "");
+    endBtn.textContent = allDone ? "Cerrar el día · Todas las misiones cumplidas" : "Cerrar el día (" + (total-doneCount) + " sin cumplir)";
+
+    // log
+    var logContainer = document.getElementById("log-container");
+    logContainer.innerHTML = "";
+    state.log.forEach(function(entry){
+      var d = document.createElement("div");
+      d.className = "log-line " + entry.tone;
+      d.textContent = entry.text;
+      logContainer.appendChild(d);
+    });
+    document.getElementById("log-panel").scrollTop = document.getElementById("log-panel").scrollHeight;
+
+    // fallen overlay
+    document.getElementById("fallen-overlay").style.display = state.fallen ? "flex" : "none";
+  }
+
+  function openPreview(src, text){
+    document.getElementById("preview-img").src = src;
+    document.getElementById("preview-title").textContent = text;
+    document.getElementById("preview-overlay").style.display = "flex";
+  }
+  document.getElementById("preview-close").addEventListener("click", function(){
+    document.getElementById("preview-overlay").style.display = "none";
+  });
+  document.getElementById("preview-overlay").addEventListener("click", function(e){
+    if (e.target.id === "preview-overlay") document.getElementById("preview-overlay").style.display = "none";
+  });
+
+  document.getElementById("revive-btn").addEventListener("click", revive);
+  document.getElementById("end-day-btn").addEventListener("click", endDay);
+  document.getElementById("add-mission-toggle").addEventListener("click", function(){
+    var box = document.getElementById("add-box");
+    box.style.display = box.style.display === "none" ? "block" : "none";
+  });
+  document.getElementById("confirm-add").addEventListener("click", addMission);
+
+  // category chips
+  var catRow = document.getElementById("cat-row");
+  Object.keys(CATEGORIES).forEach(function(key){
+    var cat = CATEGORIES[key];
+    var chip = document.createElement("button");
+    chip.className = "cat-chip" + (state.newCat === key ? " active" : "");
+    chip.innerHTML = catIcon(key, state.newCat === key ? cat.color : "#6b7690") + cat.label;
+    if (state.newCat === key){ chip.style.borderColor = cat.color; chip.style.color = cat.color; }
+    chip.addEventListener("click", function(){
+      state.newCat = key;
+      Array.prototype.forEach.call(catRow.children, function(c, i){
+        var k = Object.keys(CATEGORIES)[i];
+        var cc = CATEGORIES[k];
+        var active = k === key;
+        c.style.borderColor = active ? cc.color : "";
+        c.style.color = active ? cc.color : "";
+        c.innerHTML = catIcon(k, active ? cc.color : "#6b7690") + cc.label;
+      });
+    });
+    catRow.appendChild(chip);
+  });
+
+})();
+</script>
+</body>
+</html>
