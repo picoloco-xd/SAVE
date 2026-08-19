@@ -9,7 +9,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="SAVE" />
 <meta name="mobile-web-app-capable" content="yes" />
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22SAVE%22%2C%22short_name%22%3A%22SAVE%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%2305070c%22%2C%22theme_color%22%3A%22%2305070c%22%7D" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-192.png" />
 <style>
   :root{
     --void:#05070c;
@@ -170,11 +172,8 @@
   .trash-btn{background:none; border:none; color:var(--text-faint); cursor:pointer; padding:6px; display:flex;}
   .trash-btn:hover{color:var(--hp);}
 
-  .camera-slot{position:relative; width:30px; height:30px; min-width:30px; border-radius:6px; border:1.5px solid; display:flex; align-items:center; justify-content:center; cursor:pointer;}
-  .camera-slot input[type=file]{position:absolute; inset:0; opacity:0; cursor:pointer;}
-  .evidence-thumb{position:relative; width:30px; height:30px; min-width:30px; border-radius:6px; overflow:hidden; border:1.5px solid var(--xp); padding:0; cursor:pointer; background:none;}
-  .evidence-thumb img{width:100%; height:100%; object-fit:cover; display:block;}
-  .thumb-check{position:absolute; bottom:-3px; right:-3px; width:14px; height:14px; border-radius:50%; background:var(--xp); display:flex; align-items:center; justify-content:center; border:1.5px solid var(--panel); font-size:9px; color:#080b12; font-weight:900;}
+  .check-box{position:relative; width:26px; height:26px; min-width:26px; border-radius:6px; border:1.5px solid; background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s ease, border-color .15s ease;}
+  .check-box:disabled{cursor:not-allowed; opacity:.5;}
 
   .end-day-btn{width:100%; margin-top:14px; padding:15px; background:var(--panel); border:1px solid var(--border); color:var(--text-muted); border-radius:10px; font-weight:600; font-size:14px; cursor:pointer;}
   .end-day-btn:disabled{opacity:.4; cursor:not-allowed;}
@@ -192,11 +191,108 @@
   .overlay-title{font-family:var(--mono); font-size:22px; font-weight:800; color:var(--hp); letter-spacing:.08em; margin-top:12px;}
   .overlay-text{color:var(--text-muted); font-size:13px; margin-top:10px; line-height:1.5;}
 
-  .preview-panel{background:var(--panel); border:1px solid var(--border); border-radius:12px; overflow:hidden; max-width:380px; width:100%;}
-  .preview-head{display:flex; justify-content:space-between; align-items:center; padding:10px 12px; font-size:13px; color:var(--text); border-bottom:1px solid var(--border);}
-  .preview-img{width:100%; max-height:60vh; object-fit:contain; display:block; background:#000;}
-
   .test-notif-btn{margin-top:10px; width:100%; background:none; border:1px dashed var(--border-bright); color:var(--text-faint); border-radius:8px; padding:8px; font-family:var(--mono); font-size:10px; letter-spacing:.05em; cursor:pointer;}
+
+  /* ---------- Tab bar ---------- */
+  .tab-bar{
+    position:fixed; left:0; right:0; bottom:0;
+    display:flex; justify-content:center; gap:6px;
+    background:rgba(15,21,33,0.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--border);
+    padding:8px 14px calc(8px + env(safe-area-inset-bottom));
+    z-index:30;
+  }
+  .tab-btn{
+    flex:1; max-width:200px; display:flex; flex-direction:column; align-items:center; gap:3px;
+    background:none; border:none; color:var(--text-faint); padding:6px 10px; border-radius:10px; cursor:pointer;
+    font-size:10.5px; font-family:var(--mono); letter-spacing:.04em;
+  }
+  .tab-btn.active{color:var(--xp); background:rgba(79,209,197,0.08);}
+
+  /* ---------- Schedules ---------- */
+  .sched-card{
+    display:flex; align-items:center; gap:12px; padding:14px; margin-bottom:10px;
+    background:var(--panel-alt); border:1px solid var(--border); border-radius:10px; cursor:pointer;
+  }
+  .sched-dot{width:10px; height:10px; border-radius:50%; min-width:10px;}
+  .sched-info{flex:1; min-width:0;}
+  .sched-title{font-size:14.5px; font-weight:700; color:var(--text);}
+  .sched-sub{font-family:var(--mono); font-size:10.5px; color:var(--text-muted); margin-top:2px;}
+  .sched-badge{font-family:var(--mono); font-size:16px; font-weight:800;}
+
+  .new-sched-btn{
+    width:100%; padding:13px; background:var(--panel-alt); border:1.5px dashed var(--border-bright);
+    color:var(--text-muted); border-radius:10px; font-weight:600; font-size:13.5px; cursor:pointer; margin-top:4px;
+  }
+
+  .sched-detail-head{display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .back-btn{background:var(--panel-alt); border:1px solid var(--border); color:var(--text); border-radius:8px; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; min-width:34px;}
+  .sched-detail-title{font-size:17px; font-weight:700; flex:1;}
+
+  .view-toggle{display:flex; gap:6px; margin-bottom:14px;}
+  .view-toggle-btn{flex:1; padding:9px; text-align:center; background:var(--panel-alt); border:1px solid var(--border); color:var(--text-muted); border-radius:8px; font-size:12.5px; font-weight:600; cursor:pointer;}
+  .view-toggle-btn.active{background:rgba(79,209,197,0.12); border-color:var(--xp); color:var(--xp);}
+
+  .date-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .date-nav-btn{background:var(--panel-alt); border:1px solid var(--border); color:var(--text); border-radius:8px; width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  .date-nav-label{font-family:var(--mono); font-size:13px; color:var(--text); text-transform:capitalize;}
+
+  .day-status-banner{
+    display:flex; align-items:center; justify-content:center; gap:10px; padding:16px;
+    border-radius:10px; margin-bottom:14px; font-weight:800; font-size:15px;
+  }
+  .day-status-banner.status-done{background:rgba(79,209,197,0.1); border:1px solid var(--xp); color:var(--xp);}
+  .day-status-banner.status-missed{background:rgba(239,68,68,0.1); border:1px solid var(--hp); color:#f18b8b;}
+  .day-status-banner.status-none{background:var(--panel-alt); border:1px dashed var(--border-bright); color:var(--text-faint); font-weight:600; font-size:12.5px;}
+
+  .activity-row{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--border);}
+  .activity-row:last-child{border-bottom:none;}
+  .three-check{
+    width:28px; height:28px; min-width:28px; border-radius:7px; border:1.5px solid var(--border-bright);
+    background:transparent; display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .three-check.state-check{background:var(--xp); border-color:var(--xp); color:#06231f;}
+  .three-check.state-x{background:var(--hp); border-color:var(--hp); color:#2a0808;}
+  .activity-text{flex:1; font-size:13.5px; color:var(--text);}
+
+  .missing-box{
+    margin-top:6px; padding:10px 12px; background:var(--panel-alt); border:1px solid var(--border);
+    border-radius:8px; font-size:12px; color:var(--text-muted); line-height:1.5;
+  }
+  .missing-box b{color:var(--text);}
+
+  .cal-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:5px; margin-top:6px;}
+  .cal-dow{font-family:var(--mono); font-size:9.5px; color:var(--text-faint); text-align:center; letter-spacing:.05em;}
+  .cal-cell{
+    aspect-ratio:1; border-radius:7px; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:11.5px; color:var(--text-muted); border:1px solid var(--border);
+    background:var(--panel-alt); cursor:pointer;
+  }
+  .cal-cell.empty{visibility:hidden; cursor:default;}
+  .cal-cell.done{background:rgba(79,209,197,0.18); border-color:var(--xp); color:var(--xp); font-weight:700;}
+  .cal-cell.missed{background:rgba(239,68,68,0.14); border-color:var(--hp-dim); color:#f18b8b; font-weight:700;}
+  .cal-cell.today-cell{box-shadow:0 0 0 2px var(--streak) inset;}
+
+  .cal-stats{display:flex; gap:10px; margin-top:14px;}
+  .cal-stat{flex:1; background:var(--panel-alt); border:1px solid var(--border); border-radius:9px; padding:12px; text-align:center;}
+  .cal-stat-num{font-family:var(--mono); font-size:20px; font-weight:800;}
+  .cal-stat-label{font-family:var(--mono); font-size:9px; color:var(--text-faint); letter-spacing:.06em; margin-top:3px;}
+
+  .sched-type-btn{
+    display:block; width:100%; text-align:left; background:var(--panel-alt); border:1.5px solid var(--border);
+    border-radius:10px; padding:14px; margin-bottom:10px; cursor:pointer;
+  }
+  .sched-type-btn:active{border-color:var(--xp);}
+  .sched-type-title{font-size:14.5px; font-weight:700; color:var(--text);}
+  .sched-type-sub{font-size:11.5px; color:var(--text-muted); margin-top:4px; line-height:1.4;}
+
+  .big-toggle{
+    width:112px; height:112px; border-radius:50%; border:2px solid var(--border-bright);
+    background:var(--panel-alt); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; margin:6px auto 4px;
+  }
+  .big-toggle.state-check{background:rgba(79,209,197,0.15); border-color:var(--xp); color:var(--xp);}
+  .big-toggle.state-x{background:rgba(239,68,68,0.15); border-color:var(--hp); color:var(--hp);}
 
   .flash{position:fixed; inset:0; pointer-events:none; z-index:40; animation:flashFade .5s ease-out;}
   .flash-xp{background:radial-gradient(circle at center, rgba(79,209,197,.15), transparent 70%);}
@@ -247,6 +343,7 @@
   </div>
 
   <div class="frame">
+    <div id="tab-missions">
     <!-- Status window -->
     <div class="panel corner-brackets" style="padding:18px 18px 16px;">
       <div class="header-row">
@@ -299,6 +396,22 @@
       <div id="log-container" style="margin-top:8px;"></div>
     </div>
     <button class="test-notif-btn" id="test-notif-btn">SIMULAR NOTIFICACIÓN DE INACTIVIDAD (DEMO)</button>
+    </div>
+
+    <div id="tab-schedules" style="display:none;"></div>
+
+    <div style="height:70px;"></div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabbtn-missions" data-tab="missions">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      <span>Misiones</span>
+    </button>
+    <button class="tab-btn" id="tabbtn-schedules" data-tab="schedules">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      <span>Horarios</span>
+    </button>
   </div>
 </div>
 
@@ -312,16 +425,27 @@
   </div>
 </div>
 
-<!-- PHOTO PREVIEW -->
-<div class="overlay" id="preview-overlay" style="display:none;">
-  <div class="preview-panel">
-    <div class="preview-head">
-      <span id="preview-title"></span>
-      <button class="icon-btn" id="preview-close">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8ecf5" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+<!-- NEW SCHEDULE MODAL -->
+<div class="overlay" id="sched-create-overlay" style="display:none;">
+  <div class="overlay-panel corner-brackets" style="text-align:left; max-width:360px;">
+    <div id="sched-create-step1">
+      <div class="eyebrow" style="margin-bottom:14px;">TIPO DE HORARIO</div>
+      <button class="sched-type-btn" id="type-objetivos-btn">
+        <div class="sched-type-title">Objetivos diarios</div>
+        <div class="sched-type-sub">Varias actividades por día, cada una con su propio check/x. El sistema saca el promedio del día.</div>
       </button>
+      <button class="sched-type-btn" id="type-cotidiana-btn">
+        <div class="sched-type-title">Actividad cotidiana</div>
+        <div class="sched-type-sub">Una sola actividad recurrente (ej. ir al trabajo). Marca check o x directo en el calendario, sin definir actividades.</div>
+      </button>
+      <button class="end-day-btn" id="sched-create-cancel1" style="margin-top:4px;">Cancelar</button>
     </div>
-    <img class="preview-img" id="preview-img" src="" alt="Evidencia" />
+    <div id="sched-create-step2" style="display:none;">
+      <div class="eyebrow" style="margin-bottom:10px;">NOMBRE DEL HORARIO</div>
+      <input class="text-input" id="sched-create-title" placeholder="Ej. Trabajo, Actividades Ley" maxlength="40" />
+      <button class="confirm-btn" id="sched-create-confirm">Crear horario</button>
+      <button class="end-day-btn" id="sched-create-cancel2" style="margin-top:8px;">Volver</button>
+    </div>
   </div>
 </div>
 
@@ -398,25 +522,21 @@
     lastActivity: Date.now(),
     notifiedThisWindow: false,
     missions: [
-      {id:"d1",category:"salud",text:"Toma 2L de agua",xp:15,done:false,custom:false,photo:null},
-      {id:"d2",category:"salud",text:"30 min de ejercicio",xp:25,done:false,custom:false,photo:null},
-      {id:"d3",category:"disciplina",text:"1h sin redes sociales",xp:20,done:false,custom:false,photo:null},
-      {id:"d4",category:"disciplina",text:"Ordena tu espacio",xp:10,done:false,custom:false,photo:null},
-      {id:"d5",category:"mente",text:"Lee 15 minutos",xp:15,done:false,custom:false,photo:null},
-      {id:"d6",category:"mente",text:"Medita 10 minutos",xp:15,done:false,custom:false,photo:null}
+      {id:"d1",category:"salud",text:"Toma 2L de agua",xp:15,done:false,custom:false},
+      {id:"d2",category:"salud",text:"30 min de ejercicio",xp:25,done:false,custom:false},
+      {id:"d3",category:"disciplina",text:"1h sin redes sociales",xp:20,done:false,custom:false},
+      {id:"d4",category:"disciplina",text:"Ordena tu espacio",xp:10,done:false,custom:false},
+      {id:"d5",category:"mente",text:"Lee 15 minutos",xp:15,done:false,custom:false},
+      {id:"d6",category:"mente",text:"Medita 10 minutos",xp:15,done:false,custom:false}
     ],
     log: [{text:"Bienvenido, cazador. El sistema ha comenzado a rastrear tu progreso.", tone:"info"}],
     newCat: "salud",
-    lastActiveDate: null,
-    motivationShownDate: null
+    lastRolloverAt: null,
+    schedules: []
   };
   var idCounter = 1;
   var STORAGE_KEY = "save_app_state_v1";
-
-  function todayStr(){
-    var d = new Date();
-    return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
-  }
+  var DAY_MS = 24 * 60 * 60 * 1000;
 
   function saveState(){
     try{
@@ -426,8 +546,8 @@
         fallen: state.fallen,
         missions: state.missions,
         log: state.log,
-        lastActiveDate: state.lastActiveDate,
-        motivationShownDate: state.motivationShownDate,
+        lastRolloverAt: state.lastRolloverAt,
+        schedules: state.schedules,
         idCounter: idCounter
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
@@ -450,26 +570,6 @@
     }
   }
 
-  // Compress a photo before storing it, so localStorage doesn't fill up fast
-  function compressImage(dataUrl, maxWidth, quality, callback){
-    var img = new Image();
-    img.onload = function(){
-      var scale = Math.min(1, maxWidth / img.width);
-      var canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(img.width * scale));
-      canvas.height = Math.max(1, Math.round(img.height * scale));
-      var ctx = canvas.getContext("2d");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      try{
-        callback(canvas.toDataURL("image/jpeg", quality));
-      }catch(e){
-        callback(dataUrl);
-      }
-    };
-    img.onerror = function(){ callback(dataUrl); };
-    img.src = dataUrl;
-  }
-
   function markActivity(){ state.lastActivity = Date.now(); state.notifiedThisWindow = false; }
   document.addEventListener("click", markActivity);
   document.addEventListener("touchstart", markActivity, {passive:true});
@@ -480,20 +580,29 @@
     document.getElementById(id).classList.add("active");
   }
 
+  function checkAutoRollover(){
+    if (state.fallen) return false;
+    if (!state.lastRolloverAt){ state.lastRolloverAt = Date.now(); return false; }
+    var didRollover = false;
+    var guard = 0;
+    while (Date.now() - state.lastRolloverAt >= DAY_MS && guard < 30 && !state.fallen){
+      applyDayEnd();
+      state.lastRolloverAt += DAY_MS;
+      didRollover = true;
+      guard++;
+    }
+    if (didRollover) saveState();
+    return didRollover;
+  }
+
   setTimeout(function(){
     var hasSaved = loadState();
-    var today = todayStr();
 
     if (hasSaved && state.username){
-      // If a day has passed since we last recorded activity, resolve that day
-      // the same way endDay() would: apply the HP/streak consequence, then reset.
-      if (state.lastActiveDate && state.lastActiveDate !== today && !state.fallen){
-        endDay();
-      }
-      state.lastActiveDate = today;
+      var didRollover = checkAutoRollover();
       saveState();
 
-      if (state.motivationShownDate !== today){
+      if (didRollover){
         document.getElementById("mot-greeting").textContent = "MENSAJE DEL DÍA PARA " + state.username.toUpperCase();
         document.getElementById("mot-quote").textContent = "\u201C" + dailyQuote() + "\u201D";
         document.getElementById("mot-date").textContent = new Date().toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
@@ -509,6 +618,17 @@
     }
   }, 1600);
 
+  // Keep checking while the app stays open, in case someone leaves it running across the 24h mark
+  setInterval(function(){
+    if (!state.username || state.fallen) return;
+    if (!document.getElementById("screen-app").classList.contains("active")) return;
+    var didRollover = checkAutoRollover();
+    if (didRollover){
+      pushLog("Ha comenzado un nuevo día en el sistema.", "streak");
+      render();
+    }
+  }, 5 * 60 * 1000);
+
   // ---------------- Onboarding ----------------
   var usernameInput = document.getElementById("username-input");
   var usernameContinue = document.getElementById("username-continue");
@@ -517,7 +637,7 @@
   });
   usernameContinue.addEventListener("click", function(){
     state.username = usernameInput.value.trim();
-    state.lastActiveDate = todayStr();
+    state.lastRolloverAt = Date.now();
     saveState();
     document.getElementById("mot-greeting").textContent = "MENSAJE DEL DÍA PARA " + state.username.toUpperCase();
     document.getElementById("mot-quote").textContent = "\u201C" + dailyQuote() + "\u201D";
@@ -526,8 +646,6 @@
   });
 
   document.getElementById("mot-continue").addEventListener("click", function(){
-    state.motivationShownDate = todayStr();
-    saveState();
     document.getElementById("topbar-user").textContent = state.username.toUpperCase();
     showScreen("screen-app");
     requestNotifPermission();
@@ -591,33 +709,18 @@
     }
   }
 
-  function handlePhotoSelected(id, file){
-    if (state.fallen || !file) return;
-    var reader = new FileReader();
-    reader.onload = function(){
-      compressImage(reader.result, 480, 0.6, function(compressed){
-        var m = state.missions.find(function(mm){ return mm.id === id; });
-        if (!m) return;
-        if (!m.done){
-          gainXp(m.xp);
-          flashFx("xp");
-          pushLog('Evidencia recibida para "' + m.text + '" (+' + m.xp + ' XP)', "xp");
-        }
-        m.done = true;
-        m.photo = compressed;
-        render();
-      });
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function removeEvidence(id){
+  function toggleMission(id){
     if (state.fallen) return;
     var m = state.missions.find(function(mm){ return mm.id === id; });
-    if (!m || !m.done) return;
-    pushLog('Evidencia eliminada de "' + m.text + '". Misión pendiente de nuevo.', "hp");
-    m.done = false;
-    m.photo = null;
+    if (!m) return;
+    m.done = !m.done;
+    if (m.done){
+      gainXp(m.xp);
+      flashFx("xp");
+      pushLog('Misión completada: "' + m.text + '" (+' + m.xp + ' XP)', "xp");
+    } else {
+      pushLog('Misión marcada como pendiente de nuevo: "' + m.text + '"', "info");
+    }
     render();
   }
 
@@ -630,18 +733,26 @@
     var input = document.getElementById("new-mission-text");
     var text = input.value.trim();
     if (!text) return;
-    state.missions.push({id:"c"+(idCounter++), category: state.newCat, text: text, xp: 15, done:false, custom:true, photo:null});
+    state.missions.push({id:"c"+(idCounter++), category: state.newCat, text: text, xp: 15, done:false, custom:true});
     pushLog('Nueva misión registrada: "' + text + '"', "info");
     input.value = "";
     document.getElementById("add-box").style.display = "none";
     render();
   }
 
-  function endDay(){
-    if (state.fallen) return;
+  // Core day-end logic, shared by the manual button and the automatic 24h rollover
+  function applyDayEnd(){
     var total = state.missions.length;
     var doneCount = state.missions.filter(function(m){ return m.done; }).length;
     var incomplete = total - doneCount;
+
+    // Small daily regeneration, happens every day regardless of outcome
+    var regen = 5;
+    if (state.hp < state.maxHp){
+      state.hp = Math.min(state.maxHp, state.hp + regen);
+      pushLog("Regeneración diaria: +" + regen + " HP.", "xp");
+    }
+
     if (total > 0 && incomplete === 0){
       var bonus = 20 + state.streak * 5;
       state.streak += 1;
@@ -649,7 +760,7 @@
       flashFx("xp");
       pushLog("Día completado. Racha +1. Bono de constancia: +" + bonus + " XP.", "streak");
     } else if (total > 0){
-      var dmg = Math.min(state.hp, incomplete * 15);
+      var dmg = Math.min(state.hp, 25);
       state.streak = 0;
       state.hp = Math.max(0, state.hp - dmg);
       flashFx("hp");
@@ -659,12 +770,19 @@
         pushLog("HP a 0. Has caído. El sistema espera tu resurrección.", "hp");
       }
     }
-    state.missions = state.missions.filter(function(m){ return !m.custom; }).map(function(m){ return Object.assign({}, m, {done:false, photo:null}); });
+    state.missions = state.missions.filter(function(m){ return !m.custom; }).map(function(m){ return Object.assign({}, m, {done:false}); });
+  }
+
+  function endDay(){
+    if (state.fallen) return;
+    applyDayEnd();
+    state.lastRolloverAt = Date.now();
     render();
   }
 
   function revive(){
     state.hp = 100; state.streak = 0; state.fallen = false;
+    state.lastRolloverAt = Date.now();
     pushLog("Has vuelto a levantarte. HP restaurado. Racha reiniciada.", "info");
     render();
   }
@@ -709,23 +827,19 @@
         var row = document.createElement("div");
         row.className = "mission-row" + (m.done ? " done" : "");
 
-        var leftEl;
+        var checkBtn = document.createElement("button");
+        checkBtn.className = "check-box";
         if (m.done){
-          leftEl = document.createElement("button");
-          leftEl.className = "evidence-thumb";
-          leftEl.innerHTML = '<img src="'+m.photo+'" alt="" /><span class="thumb-check">✓</span>';
-          leftEl.addEventListener("click", function(){ openPreview(m.photo, m.text); });
+          checkBtn.style.background = cat.color;
+          checkBtn.style.borderColor = cat.color;
+          checkBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#080b12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
         } else {
-          leftEl = document.createElement("label");
-          leftEl.className = "camera-slot";
-          leftEl.style.borderColor = cat.color + "88";
-          leftEl.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="'+cat.color+'" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>';
-          var input = document.createElement("input");
-          input.type = "file"; input.accept = "image/*"; input.setAttribute("capture","environment");
-          input.addEventListener("change", function(e){ handlePhotoSelected(m.id, e.target.files[0]); });
-          leftEl.appendChild(input);
+          checkBtn.style.borderColor = cat.color + "88";
+          checkBtn.innerHTML = "";
         }
-        row.appendChild(leftEl);
+        checkBtn.disabled = state.fallen;
+        checkBtn.addEventListener("click", function(){ toggleMission(m.id); });
+        row.appendChild(checkBtn);
 
         var textEl = document.createElement("span");
         textEl.className = "mission-text";
@@ -737,13 +851,7 @@
         xpEl.textContent = "+" + m.xp;
         row.appendChild(xpEl);
 
-        if (m.done){
-          var undoBtn = document.createElement("button");
-          undoBtn.className = "trash-btn";
-          undoBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>';
-          undoBtn.addEventListener("click", function(){ removeEvidence(m.id); });
-          row.appendChild(undoBtn);
-        } else if (m.custom){
+        if (m.custom){
           var delBtn = document.createElement("button");
           delBtn.className = "trash-btn";
           delBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>';
@@ -780,18 +888,6 @@
     if (state.username) saveState();
   }
 
-  function openPreview(src, text){
-    document.getElementById("preview-img").src = src;
-    document.getElementById("preview-title").textContent = text;
-    document.getElementById("preview-overlay").style.display = "flex";
-  }
-  document.getElementById("preview-close").addEventListener("click", function(){
-    document.getElementById("preview-overlay").style.display = "none";
-  });
-  document.getElementById("preview-overlay").addEventListener("click", function(e){
-    if (e.target.id === "preview-overlay") document.getElementById("preview-overlay").style.display = "none";
-  });
-
   document.getElementById("revive-btn").addEventListener("click", revive);
   document.getElementById("end-day-btn").addEventListener("click", endDay);
   document.getElementById("add-mission-toggle").addEventListener("click", function(){
@@ -821,6 +917,470 @@
     });
     catRow.appendChild(chip);
   });
+
+  // ================= HORARIOS (SCHEDULES) =================
+  var SCHED_COLORS = ["#4fd1c5", "#f2b705", "#a78bfa", "#ef4444", "#60a5fa", "#34d399", "#f472b6"];
+  var DOW_LABELS = ["L","M","X","J","V","S","D"];
+  var MONTH_LABELS = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+  var scheduleUI = {
+    mode: "list",        // 'list' | 'detail'
+    activeId: null,
+    view: "day",         // 'day' | 'month'
+    cursorDate: new Date(),
+    cursorMonth: new Date()
+  };
+
+  function dateKey(d){ return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate(); }
+  function sameDay(a, b){ return dateKey(a) === dateKey(b); }
+
+  function findSchedule(id){ return state.schedules.find(function(s){ return s.id === id; }); }
+
+  function addSchedule(title, type){
+    var color = SCHED_COLORS[state.schedules.length % SCHED_COLORS.length];
+    var sch = { id: "sch" + (idCounter++), title: title, color: color, type: type || "objetivos", activities: [], records: {}, simpleRecords: {} };
+    state.schedules.push(sch);
+    saveState();
+    return sch;
+  }
+
+  function removeSchedule(id){
+    state.schedules = state.schedules.filter(function(s){ return s.id !== id; });
+    scheduleUI.mode = "list";
+    saveState();
+    renderSchedulesTab();
+  }
+
+  function addActivity(schId, text){
+    var sch = findSchedule(schId);
+    if (!sch || !text.trim()) return;
+    sch.activities.push({ id: "act" + (idCounter++), text: text.trim() });
+    saveState();
+    renderSchedulesTab();
+  }
+
+  function removeActivity(schId, actId){
+    var sch = findSchedule(schId);
+    if (!sch) return;
+    sch.activities = sch.activities.filter(function(a){ return a.id !== actId; });
+    saveState();
+    renderSchedulesTab();
+  }
+
+  // cycles: undefined -> true (check) -> false (x) -> undefined
+  function cycleActivityState(schId, actId, dKey){
+    var sch = findSchedule(schId);
+    if (!sch) return;
+    if (!sch.records[dKey]) sch.records[dKey] = {};
+    var cur = sch.records[dKey][actId];
+    if (cur === undefined) sch.records[dKey][actId] = true;
+    else if (cur === true) sch.records[dKey][actId] = false;
+    else delete sch.records[dKey][actId];
+    saveState();
+    renderSchedulesTab();
+  }
+
+  // Returns {status:'done'|'missed'|'none', checked, marked, total, missingTexts:[]}
+  function computeDayStatus(sch, dKey){
+    var total = sch.activities.length;
+    var rec = sch.records[dKey] || {};
+    var checked = 0, marked = 0;
+    var missingTexts = [];
+    sch.activities.forEach(function(a){
+      var v = rec[a.id];
+      if (v === undefined){ missingTexts.push(a.text); return; }
+      marked++;
+      if (v === true) checked++;
+    });
+    if (total === 0 || marked === 0) return { status:"none", checked:checked, marked:marked, total:total, missingTexts:missingTexts };
+    var ratio = checked / marked;
+    return { status: ratio >= 0.5 ? "done" : "missed", checked:checked, marked:marked, total:total, missingTexts:missingTexts };
+  }
+
+  // For 'cotidiana' schedules: the whole day is marked directly, no activities involved
+  function computeSimpleDayStatus(sch, dKey){
+    var v = (sch.simpleRecords || {})[dKey];
+    if (v === undefined) return { status:"none" };
+    return { status: v ? "done" : "missed" };
+  }
+
+  function getDayStatus(sch, dKey){
+    return sch.type === "cotidiana" ? computeSimpleDayStatus(sch, dKey) : computeDayStatus(sch, dKey);
+  }
+
+  function cycleSimpleDayState(schId, dKey){
+    var sch = findSchedule(schId);
+    if (!sch) return;
+    if (!sch.simpleRecords) sch.simpleRecords = {};
+    var cur = sch.simpleRecords[dKey];
+    if (cur === undefined) sch.simpleRecords[dKey] = true;
+    else if (cur === true) sch.simpleRecords[dKey] = false;
+    else delete sch.simpleRecords[dKey];
+    saveState();
+    renderSchedulesTab();
+  }
+
+  function switchTab(tab){
+    document.getElementById("tab-missions").style.display = tab === "missions" ? "block" : "none";
+    document.getElementById("tab-schedules").style.display = tab === "schedules" ? "block" : "none";
+    document.getElementById("tabbtn-missions").classList.toggle("active", tab === "missions");
+    document.getElementById("tabbtn-schedules").classList.toggle("active", tab === "schedules");
+    if (tab === "schedules") renderSchedulesTab();
+  }
+  document.getElementById("tabbtn-missions").addEventListener("click", function(){ switchTab("missions"); });
+  document.getElementById("tabbtn-schedules").addEventListener("click", function(){ switchTab("schedules"); });
+
+  function esc(str){
+    var d = document.createElement("div");
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function renderSchedulesTab(){
+    var root = document.getElementById("tab-schedules");
+    if (scheduleUI.mode === "list"){
+      renderSchedulesList(root);
+    } else {
+      renderScheduleDetail(root);
+    }
+  }
+
+  function renderSchedulesList(root){
+    var html = '<div class="panel" style="padding:16px;">';
+    html += '<div class="eyebrow">TUS HORARIOS</div>';
+    html += '<div style="margin-top:12px;" id="sched-list-inner"></div>';
+    html += '<button class="new-sched-btn" id="new-sched-btn">+ Crear nuevo horario</button>';
+    html += '</div>';
+    root.innerHTML = html;
+
+    var listInner = document.getElementById("sched-list-inner");
+    if (state.schedules.length === 0){
+      listInner.innerHTML = '<div style="font-size:13px; color:var(--text-muted); padding:8px 2px 4px;">Aún no tienes horarios. Crea uno para empezar a llevar el control — por ejemplo "Trabajo" o "Actividades Ley".</div>';
+    } else {
+      state.schedules.forEach(function(sch){
+        var todayStatus = getDayStatus(sch, dateKey(new Date()));
+        var missedTotal = 0, doneTotal = 0;
+        var recordKeys = sch.type === "cotidiana" ? Object.keys(sch.simpleRecords||{}) : Object.keys(sch.records||{});
+        recordKeys.forEach(function(k){
+          var st = getDayStatus(sch, k).status;
+          if (st === "done") doneTotal++;
+          else if (st === "missed") missedTotal++;
+        });
+        var subText = sch.type === "cotidiana"
+          ? "Actividad cotidiana · " + missedTotal + " día(s) perdido(s)"
+          : sch.activities.length + " actividad(es) · " + missedTotal + " día(s) perdido(s)";
+        var card = document.createElement("div");
+        card.className = "sched-card";
+        card.innerHTML =
+          '<span class="sched-dot" style="background:'+sch.color+';"></span>' +
+          '<div class="sched-info">' +
+            '<div class="sched-title">'+esc(sch.title)+'</div>' +
+            '<div class="sched-sub">'+subText+'</div>' +
+          '</div>' +
+          '<span class="sched-badge" style="color:'+(todayStatus.status==='done'?'var(--xp)':todayStatus.status==='missed'?'var(--hp)':'var(--text-faint)')+';">' +
+            (todayStatus.status==='done' ? '✓' : todayStatus.status==='missed' ? '✕' : '·') +
+          '</span>';
+        card.addEventListener("click", function(){
+          scheduleUI.mode = "detail";
+          scheduleUI.activeId = sch.id;
+          scheduleUI.view = "day";
+          scheduleUI.cursorDate = new Date();
+          renderSchedulesTab();
+        });
+        listInner.appendChild(card);
+      });
+    }
+
+    document.getElementById("new-sched-btn").addEventListener("click", openCreateScheduleModal);
+  }
+
+  // ---- New schedule modal ----
+  var pendingSchedType = null;
+
+  function openCreateScheduleModal(){
+    pendingSchedType = null;
+    document.getElementById("sched-create-step1").style.display = "block";
+    document.getElementById("sched-create-step2").style.display = "none";
+    document.getElementById("sched-create-title").value = "";
+    document.getElementById("sched-create-overlay").style.display = "flex";
+  }
+  function closeCreateScheduleModal(){
+    document.getElementById("sched-create-overlay").style.display = "none";
+  }
+  document.getElementById("type-objetivos-btn").addEventListener("click", function(){
+    pendingSchedType = "objetivos";
+    document.getElementById("sched-create-step1").style.display = "none";
+    document.getElementById("sched-create-step2").style.display = "block";
+    document.getElementById("sched-create-title").focus();
+  });
+  document.getElementById("type-cotidiana-btn").addEventListener("click", function(){
+    pendingSchedType = "cotidiana";
+    document.getElementById("sched-create-step1").style.display = "none";
+    document.getElementById("sched-create-step2").style.display = "block";
+    document.getElementById("sched-create-title").focus();
+  });
+  document.getElementById("sched-create-cancel1").addEventListener("click", closeCreateScheduleModal);
+  document.getElementById("sched-create-cancel2").addEventListener("click", function(){
+    document.getElementById("sched-create-step1").style.display = "block";
+    document.getElementById("sched-create-step2").style.display = "none";
+  });
+  document.getElementById("sched-create-confirm").addEventListener("click", function(){
+    var title = document.getElementById("sched-create-title").value.trim();
+    if (!title) return;
+    var sch = addSchedule(title, pendingSchedType);
+    closeCreateScheduleModal();
+    scheduleUI.mode = "detail";
+    scheduleUI.activeId = sch.id;
+    scheduleUI.view = "day";
+    scheduleUI.cursorDate = new Date();
+    renderSchedulesTab();
+  });
+
+  function renderScheduleDetail(root){
+    var sch = findSchedule(scheduleUI.activeId);
+    if (!sch){ scheduleUI.mode = "list"; renderSchedulesTab(); return; }
+
+    var html = '';
+    html += '<div class="sched-detail-head">';
+    html += '<button class="back-btn" id="sched-back-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>';
+    html += '<div class="sched-detail-title" style="color:'+sch.color+';">'+esc(sch.title)+'</div>';
+    html += '<button class="icon-btn" id="sched-rename-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg></button>';
+    html += '<button class="icon-btn" id="sched-delete-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg></button>';
+    html += '</div>';
+
+    html += '<div class="view-toggle">';
+    html += '<button class="view-toggle-btn'+(scheduleUI.view==='day'?' active':'')+'" id="view-day-btn">Día</button>';
+    html += '<button class="view-toggle-btn'+(scheduleUI.view==='month'?' active':'')+'" id="view-month-btn">Mes</button>';
+    html += '</div>';
+
+    html += '<div id="sched-view-body"></div>';
+    root.innerHTML = html;
+
+    document.getElementById("sched-back-btn").addEventListener("click", function(){
+      scheduleUI.mode = "list";
+      renderSchedulesTab();
+    });
+    document.getElementById("sched-rename-btn").addEventListener("click", function(){
+      var t = prompt("Nuevo nombre del horario:", sch.title);
+      if (t && t.trim()){ sch.title = t.trim(); saveState(); renderSchedulesTab(); }
+    });
+    document.getElementById("sched-delete-btn").addEventListener("click", function(){
+      if (confirm('¿Eliminar el horario "'+sch.title+'" y todo su historial?')) removeSchedule(sch.id);
+    });
+    document.getElementById("view-day-btn").addEventListener("click", function(){ scheduleUI.view = "day"; renderSchedulesTab(); });
+    document.getElementById("view-month-btn").addEventListener("click", function(){ scheduleUI.view = "month"; renderSchedulesTab(); });
+
+    if (scheduleUI.view === "day") renderDayView(sch);
+    else renderMonthView(sch);
+  }
+
+  function renderDayView(sch){
+    if (sch.type === "cotidiana"){ renderDayViewSimple(sch); return; }
+    var body = document.getElementById("sched-view-body");
+    var d = scheduleUI.cursorDate;
+    var dKey = dateKey(d);
+    var isToday = sameDay(d, new Date());
+    var label = (isToday ? "Hoy · " : "") + d.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+
+    var html = '';
+    html += '<div class="date-nav">';
+    html += '<button class="date-nav-btn" id="day-prev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>';
+    html += '<span class="date-nav-label">'+label+'</span>';
+    html += '<button class="date-nav-btn" id="day-next"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>';
+    html += '</div>';
+
+    var status = computeDayStatus(sch, dKey);
+    if (status.status !== "none"){
+      html += '<div class="day-status-banner status-'+status.status+'">' +
+        (status.status === "done" ? "✓ Día cumplido" : "✕ Día no cumplido") +
+        ' <span style="font-weight:500; font-size:12px; opacity:.75;">('+status.checked+'/'+status.total+')</span></div>';
+    } else {
+      html += '<div class="day-status-banner status-none">Aún no has marcado nada este día</div>';
+    }
+
+    html += '<div class="panel" style="padding:14px;">';
+    html += '<div class="eyebrow">ACTIVIDADES</div>';
+    html += '<div style="margin-top:8px;" id="activities-list"></div>';
+    html += '<div class="add-box" style="margin-top:10px;">';
+    html += '<input class="text-input" id="new-activity-text" placeholder="Nueva actividad..." maxlength="60" />';
+    html += '<button class="confirm-btn" id="add-activity-btn">Agregar actividad</button>';
+    html += '</div>';
+    html += '</div>';
+
+    if (status.missingTexts.length > 0){
+      html += '<div class="missing-box"><b>Te falta marcar:</b> ' + status.missingTexts.map(esc).join(", ") + '</div>';
+    }
+
+    body.innerHTML = html;
+
+    document.getElementById("day-prev").addEventListener("click", function(){
+      scheduleUI.cursorDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()-1);
+      renderSchedulesTab();
+    });
+    document.getElementById("day-next").addEventListener("click", function(){
+      scheduleUI.cursorDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1);
+      renderSchedulesTab();
+    });
+    document.getElementById("add-activity-btn").addEventListener("click", function(){
+      var input = document.getElementById("new-activity-text");
+      addActivity(sch.id, input.value);
+    });
+
+    var listEl = document.getElementById("activities-list");
+    if (sch.activities.length === 0){
+      listEl.innerHTML = '<div style="font-size:12.5px; color:var(--text-faint);">Este horario todavía no tiene actividades.</div>';
+    } else {
+      sch.activities.forEach(function(a){
+        var rec = sch.records[dKey] || {};
+        var v = rec[a.id];
+        var row = document.createElement("div");
+        row.className = "activity-row";
+
+        var btn = document.createElement("button");
+        btn.className = "three-check" + (v === true ? " state-check" : v === false ? " state-x" : "");
+        btn.innerHTML = v === true
+          ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+          : v === false
+          ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>'
+          : '';
+        btn.addEventListener("click", function(){ cycleActivityState(sch.id, a.id, dKey); });
+        row.appendChild(btn);
+
+        var txt = document.createElement("span");
+        txt.className = "activity-text";
+        txt.textContent = a.text;
+        row.appendChild(txt);
+
+        var del = document.createElement("button");
+        del.className = "trash-btn";
+        del.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>';
+        del.addEventListener("click", function(){ removeActivity(sch.id, a.id); });
+        row.appendChild(del);
+
+        listEl.appendChild(row);
+      });
+    }
+  }
+
+  function renderDayViewSimple(sch){
+    var body = document.getElementById("sched-view-body");
+    var d = scheduleUI.cursorDate;
+    var dKey = dateKey(d);
+    var isToday = sameDay(d, new Date());
+    var label = (isToday ? "Hoy · " : "") + d.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
+
+    var st = computeSimpleDayStatus(sch, dKey);
+    var checkSvg = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    var xSvg = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>';
+
+    var html = '';
+    html += '<div class="date-nav">';
+    html += '<button class="date-nav-btn" id="day-prev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>';
+    html += '<span class="date-nav-label">'+label+'</span>';
+    html += '<button class="date-nav-btn" id="day-next"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>';
+    html += '</div>';
+
+    html += '<div class="panel" style="padding:26px 16px; text-align:center;">';
+    html += '<div class="eyebrow">'+esc(sch.title).toUpperCase()+'</div>';
+    html += '<button class="big-toggle'+(st.status==='done'?' state-check':st.status==='missed'?' state-x':'')+'" id="simple-toggle-btn">' +
+      (st.status==='done' ? checkSvg : st.status==='missed' ? xSvg : '') +
+      '</button>';
+    html += '<div style="font-family:var(--mono); font-size:11px; color:var(--text-faint); letter-spacing:.04em;">' +
+      (st.status==='none' ? 'TOCA PARA MARCAR' : st.status==='done' ? 'CUMPLIDO' : 'NO CUMPLIDO') +
+      '</div>';
+    html += '</div>';
+
+    body.innerHTML = html;
+
+    document.getElementById("day-prev").addEventListener("click", function(){
+      scheduleUI.cursorDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()-1);
+      renderSchedulesTab();
+    });
+    document.getElementById("day-next").addEventListener("click", function(){
+      scheduleUI.cursorDate = new Date(d.getFullYear(), d.getMonth(), d.getDate()+1);
+      renderSchedulesTab();
+    });
+    document.getElementById("simple-toggle-btn").addEventListener("click", function(){
+      cycleSimpleDayState(sch.id, dKey);
+    });
+  }
+
+  function renderMonthView(sch){
+    var body = document.getElementById("sched-view-body");
+    var cm = scheduleUI.cursorMonth;
+    var year = cm.getFullYear(), month = cm.getMonth();
+    var label = MONTH_LABELS[month] + " " + year;
+
+    var html = '';
+    html += '<div class="date-nav">';
+    html += '<button class="date-nav-btn" id="month-prev"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg></button>';
+    html += '<span class="date-nav-label">'+label+'</span>';
+    html += '<button class="date-nav-btn" id="month-next"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></button>';
+    html += '</div>';
+
+    html += '<div class="panel" style="padding:14px;">';
+    html += '<div class="cal-grid">';
+    DOW_LABELS.forEach(function(l){ html += '<div class="cal-dow">'+l+'</div>'; });
+    html += '</div>';
+    html += '<div class="cal-grid" id="cal-days" style="margin-top:6px;"></div>';
+    html += '</div>';
+
+    body.innerHTML = html;
+
+    document.getElementById("month-prev").addEventListener("click", function(){
+      scheduleUI.cursorMonth = new Date(year, month-1, 1);
+      renderSchedulesTab();
+    });
+    document.getElementById("month-next").addEventListener("click", function(){
+      scheduleUI.cursorMonth = new Date(year, month+1, 1);
+      renderSchedulesTab();
+    });
+
+    var firstOfMonth = new Date(year, month, 1);
+    var startOffset = (firstOfMonth.getDay() + 6) % 7; // Monday-first
+    var daysInMonth = new Date(year, month+1, 0).getDate();
+    var todayKey = dateKey(new Date());
+
+    var doneCount = 0, missedCount = 0;
+    var calDays = document.getElementById("cal-days");
+    for (var i=0; i<startOffset; i++){
+      var empty = document.createElement("div");
+      empty.className = "cal-cell empty";
+      calDays.appendChild(empty);
+    }
+    for (var day=1; day<=daysInMonth; day++){
+      var thisDate = new Date(year, month, day);
+      var k = dateKey(thisDate);
+      var st = getDayStatus(sch, k);
+      var cell = document.createElement("div");
+      var cls = "cal-cell";
+      if (st.status === "done"){ cls += " done"; doneCount++; }
+      else if (st.status === "missed"){ cls += " missed"; missedCount++; }
+      if (k === todayKey) cls += " today-cell";
+      cell.className = cls;
+      cell.textContent = day;
+      if (sch.type === "cotidiana"){
+        cell.addEventListener("click", function(kk){
+          return function(){ cycleSimpleDayState(sch.id, kk); };
+        }(k));
+      } else {
+        cell.addEventListener("click", function(dt){
+          return function(){
+            scheduleUI.view = "day";
+            scheduleUI.cursorDate = dt;
+            renderSchedulesTab();
+          };
+        }(thisDate));
+      }
+      calDays.appendChild(cell);
+    }
+
+    var statsHtml = '<div class="cal-stats">' +
+      '<div class="cal-stat"><div class="cal-stat-num" style="color:var(--xp);">'+doneCount+'</div><div class="cal-stat-label">CUMPLIDOS</div></div>' +
+      '<div class="cal-stat"><div class="cal-stat-num" style="color:var(--hp);">'+missedCount+'</div><div class="cal-stat-label">PERDIDOS</div></div>' +
+      '</div>';
+    body.insertAdjacentHTML("beforeend", statsHtml);
+  }
 
 })();
 </script>
