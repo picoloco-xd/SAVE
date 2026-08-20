@@ -294,6 +294,87 @@
   .big-toggle.state-check{background:rgba(79,209,197,0.15); border-color:var(--xp); color:var(--xp);}
   .big-toggle.state-x{background:rgba(239,68,68,0.15); border-color:var(--hp); color:var(--hp);}
 
+  .ex-entry-row{display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--border);}
+  .ex-entry-row:last-child{border-bottom:none;}
+  .ex-entry-dot{width:8px; height:8px; border-radius:50%; min-width:8px;}
+  .ex-entry-name{flex:1; font-size:13.5px; color:var(--text);}
+  .ex-entry-meta{font-family:var(--mono); font-size:10.5px; color:var(--text-muted); text-align:right; white-space:nowrap;}
+
+  .week-chart-row{display:flex; align-items:flex-end; gap:8px; height:100px;}
+  .week-chart-col{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; gap:5px;}
+  .week-chart-bar{width:100%; max-width:26px; border-radius:5px 5px 3px 3px; background:var(--border-bright); transition:height .4s ease;}
+  .week-chart-bar.has-value{background:linear-gradient(180deg,var(--streak),#c98f06);}
+  .week-chart-label{font-family:var(--mono); font-size:9px; color:var(--text-faint); letter-spacing:.03em;}
+
+  .steps-stat-row{display:flex; gap:10px;}
+  .steps-stat{flex:1; background:var(--panel-alt); border:1px solid var(--border); border-radius:9px; padding:12px; text-align:center;}
+  .steps-stat-num{font-family:var(--mono); font-size:17px; font-weight:800; color:var(--xp);}
+  .steps-stat-label{font-family:var(--mono); font-size:8.5px; color:var(--text-faint); letter-spacing:.05em; margin-top:3px;}
+
+  /* ---------- Pomodoro timer ---------- */
+  .timer-ring-wrap{position:relative; width:200px; height:200px; margin:16px auto 6px;}
+  .timer-ring-svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .timer-ring-track{fill:none; stroke:var(--border); stroke-width:10;}
+  .timer-ring-progress{
+    fill:none; stroke:var(--xp); stroke-width:10; stroke-linecap:round;
+    stroke-dasharray:553; stroke-dashoffset:0;
+    transition:stroke-dashoffset 1s linear, stroke .4s ease;
+    filter:drop-shadow(0 0 6px rgba(79,209,197,.5));
+  }
+  .timer-ring-progress.mode-short{stroke:var(--streak); filter:drop-shadow(0 0 6px rgba(242,183,5,.5));}
+  .timer-ring-progress.mode-long{stroke:#a78bfa; filter:drop-shadow(0 0 6px rgba(167,139,250,.5));}
+  .timer-display{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:38px; font-weight:800; color:var(--text);
+  }
+  .timer-ring-wrap.running .timer-ring-progress{animation:ringPulse 2.4s ease-in-out infinite;}
+  @keyframes ringPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(79,209,197,.5));}50%{filter:drop-shadow(0 0 14px rgba(79,209,197,.85));}}
+
+  .timer-dots{display:flex; justify-content:center; gap:7px; margin:4px 0 14px;}
+  .timer-dot{width:7px; height:7px; border-radius:50%; background:var(--border-bright); transition:background .3s ease, transform .3s ease;}
+  .timer-dot.filled{background:var(--xp); transform:scale(1.15);}
+
+  .timer-controls{display:flex; align-items:center; justify-content:center; gap:16px;}
+  .timer-btn-secondary{
+    width:42px; height:42px; border-radius:50%; background:var(--panel-alt); border:1px solid var(--border);
+    color:var(--text-muted); display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:transform .12s ease, border-color .15s ease;
+  }
+  .timer-btn-secondary:active{transform:scale(0.9);}
+  .timer-btn-main{
+    width:64px; height:64px; border-radius:50%; background:var(--xp); border:none; color:#06231f;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    box-shadow:0 0 18px rgba(79,209,197,.35);
+    transition:transform .12s ease, box-shadow .2s ease;
+  }
+  .timer-btn-main:active{transform:scale(0.92);}
+
+  .edu-toggle-btn{
+    width:100%; display:flex; align-items:center; justify-content:space-between; background:none; border:none;
+    color:var(--text); font-size:13.5px; font-weight:600; cursor:pointer; padding:2px;
+  }
+  .edu-toggle-btn svg{transition:transform .25s ease;}
+  .edu-toggle-btn.open svg{transform:rotate(180deg);}
+  .edu-content{overflow:hidden; max-height:0; transition:max-height .35s ease;}
+  .edu-content p{font-size:12.5px; line-height:1.6; color:var(--text-muted); margin:10px 0 0;}
+
+  /* ---------- General smooth-motion polish ---------- */
+  .panel{transition:border-color .2s ease, box-shadow .2s ease;}
+  .tab-content-enter{animation:tabFadeIn .32s cubic-bezier(.16,1,.3,1);}
+  @keyframes tabFadeIn{from{opacity:0; transform:translateY(10px);}to{opacity:1; transform:translateY(0);}}
+
+  button{transition:transform .12s ease, background .18s ease, border-color .18s ease, color .18s ease, box-shadow .2s ease;}
+  button:active{transform:scale(0.94);}
+  .tab-btn{transition:color .25s ease, background .25s ease;}
+  .check-box, .three-check, .big-toggle{transition:transform .18s cubic-bezier(.34,1.56,.64,1), background .18s ease, border-color .18s ease;}
+  .pop-anim{animation:popCheck .32s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes popCheck{0%{transform:scale(1);}45%{transform:scale(1.28);}100%{transform:scale(1);}}
+  .cal-cell{transition:transform .15s ease, background .2s ease, border-color .2s ease;}
+  .cal-cell:not(.empty):active{transform:scale(0.9);}
+  .sched-card, .ex-entry-row, .mission-row, .activity-row{transition:background .15s ease;}
+  .week-chart-bar{transition:height .5s cubic-bezier(.16,1,.3,1);}
+  .bar-fill{transition:width .6s cubic-bezier(.16,1,.3,1);}
+
   .flash{position:fixed; inset:0; pointer-events:none; z-index:40; animation:flashFade .5s ease-out;}
   .flash-xp{background:radial-gradient(circle at center, rgba(79,209,197,.15), transparent 70%);}
   .flash-hp{background:radial-gradient(circle at center, rgba(239,68,68,.18), transparent 70%);}
@@ -400,6 +481,102 @@
 
     <div id="tab-schedules" style="display:none;"></div>
 
+    <div id="tab-exercise" style="display:none;">
+      <div class="panel corner-brackets" style="padding:18px;">
+        <div class="header-row">
+          <div>
+            <div class="eyebrow">EJERCICIO DE HOY</div>
+            <div class="rank-line" style="margin-top:6px;">
+              <span class="level-badge" id="ex-minutes-today" style="color:var(--streak);">0</span>
+              <span class="rank-name" id="ex-goal-label">/ 30 min</span>
+            </div>
+          </div>
+          <button class="icon-btn" id="ex-edit-goal-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg>
+          </button>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="bar-track"><div class="bar-fill xp-fill" id="ex-goal-fill" style="width:0%; background:linear-gradient(90deg,#c98f06,var(--streak)); box-shadow:0 0 8px rgba(242,183,5,.4);"></div></div>
+        </div>
+        <div id="ex-weight-label" style="font-family:var(--mono); font-size:10.5px; color:var(--text-faint); cursor:pointer; margin-top:10px; text-align:right;"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px; padding:16px 16px 8px;">
+        <div class="section-head-row">
+          <div class="eyebrow">REGISTRAR EJERCICIO</div>
+          <button class="icon-btn" id="ex-add-toggle">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e8ecf5" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+        </div>
+        <div class="add-box" id="ex-add-box" style="display:none;">
+          <div class="cat-row" id="ex-cat-row"></div>
+          <input class="text-input" id="ex-name-input" placeholder="Nombre (ej. Saltar la cuerda)" maxlength="40" style="margin-top:9px;" />
+          <input class="text-input" id="ex-minutes-input" type="number" min="1" max="600" placeholder="Minutos" style="margin-top:9px;" />
+          <button class="confirm-btn" id="ex-confirm-add">Registrar ejercicio</button>
+        </div>
+        <div id="ex-today-list" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px; padding:16px;">
+        <div class="eyebrow">ÚLTIMOS 7 DÍAS</div>
+        <div id="ex-week-chart" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <div id="tab-study" style="display:none;">
+      <div class="panel corner-brackets" style="padding:22px 18px; text-align:center;">
+        <div class="eyebrow" id="timer-mode-label">ENFOQUE</div>
+        <div class="timer-ring-wrap" id="timer-ring-wrap">
+          <svg viewBox="0 0 200 200" class="timer-ring-svg">
+            <circle cx="100" cy="100" r="88" class="timer-ring-track"/>
+            <circle cx="100" cy="100" r="88" class="timer-ring-progress" id="timer-ring-progress"/>
+          </svg>
+          <div class="timer-display" id="timer-display">25:00</div>
+        </div>
+        <div class="timer-dots" id="timer-dots"></div>
+        <div class="timer-controls">
+          <button class="timer-btn-secondary" id="timer-reset-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          </button>
+          <button class="timer-btn-main" id="timer-toggle-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="timer-toggle-icon"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="timer-btn-secondary" id="timer-skip-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4l10 8-10 8V4zM19 5v14"/></svg>
+          </button>
+        </div>
+        <div class="section-head-row" style="margin-top:16px;">
+          <span style="font-family:var(--mono); font-size:10px; color:var(--text-faint);" id="study-minutes-today">0 min estudiados hoy</span>
+          <button class="icon-btn" id="timer-settings-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4z"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:14px; padding:16px;">
+        <button class="edu-toggle-btn" id="edu-toggle-btn">
+          <span>¿Por qué Pomodoro + recuerdo activo?</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="edu-chevron"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="edu-content" id="edu-content" style="display:none;">
+          <p>La ciencia del aprendizaje es bastante clara en esto: releer apuntes o subrayar se siente productivo, pero es de lo menos efectivo que existe. Lo que sí funciona, respaldado por décadas de estudios (incluyendo un metaanálisis de 2021 con más de 169,000 participantes), son dos técnicas:</p>
+          <p><b style="color:var(--xp);">Recuerdo activo</b> — en vez de releer, cierra el material e intenta recordarlo desde cero: hazte preguntas, resuelve ejercicios, explica el tema en voz alta como si le enseñaras a alguien. Que se sienta difícil es buena señal, así es como se fija la memoria de verdad.</p>
+          <p><b style="color:var(--streak);">Repetición espaciada</b> — no estudies un tema una sola vez y ya. Vuelve a repasarlo al día siguiente, luego a los 3 días, luego a la semana. Ese espaciado es lo que mueve la información a la memoria de largo plazo.</p>
+          <p><b style="color:var(--text);">¿Y el Pomodoro?</b> Por sí solo no te hace aprender más — pero es una estructura excelente para dejar de procrastinar: bloques cortos de enfoque total (25 min) seguidos de descansos reales, así el cerebro no se agota. Usa cada bloque de "ENFOQUE" para practicar recuerdo activo, no para releer.</p>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:14px; padding:16px;">
+        <div class="eyebrow">ÚLTIMOS 7 DÍAS</div>
+        <div id="study-week-chart" style="margin-top:12px;"></div>
+      </div>
+
+      <div class="panel" style="margin-top:14px; padding:16px 16px 8px;">
+        <div class="eyebrow">SESIONES DE HOY</div>
+        <div id="study-today-list" style="margin-top:8px;"></div>
+      </div>
+    </div>
+
     <div style="height:70px;"></div>
   </div>
 
@@ -411,6 +588,14 @@
     <button class="tab-btn" id="tabbtn-schedules" data-tab="schedules">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       <span>Horarios</span>
+    </button>
+    <button class="tab-btn" id="tabbtn-exercise" data-tab="exercise">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5l11 11M4 4l3 3M17 17l3 3M2.5 12.5l3-3 3 3-3 3zM15.5 12.5l3-3 3 3-3 3z"/></svg>
+      <span>Ejercicio</span>
+    </button>
+    <button class="tab-btn" id="tabbtn-study" data-tab="study">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
+      <span>Estudio</span>
     </button>
   </div>
 </div>
@@ -532,7 +717,13 @@
     log: [{text:"Bienvenido, cazador. El sistema ha comenzado a rastrear tu progreso.", tone:"info"}],
     newCat: "salud",
     lastRolloverAt: null,
-    schedules: []
+    schedules: [],
+    weightKg: null,
+    exerciseGoalMin: 30,
+    exerciseLog: [],
+    exNewCat: "cardio",
+    pomodoro: { focusMin: 25, shortMin: 5, longMin: 15, cyclesBeforeLong: 4 },
+    studyLog: []
   };
   var idCounter = 1;
   var STORAGE_KEY = "save_app_state_v1";
@@ -548,6 +739,11 @@
         log: state.log,
         lastRolloverAt: state.lastRolloverAt,
         schedules: state.schedules,
+        weightKg: state.weightKg,
+        exerciseGoalMin: state.exerciseGoalMin,
+        exerciseLog: state.exerciseLog,
+        pomodoro: state.pomodoro,
+        studyLog: state.studyLog,
         idCounter: idCounter
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
@@ -828,7 +1024,7 @@
         row.className = "mission-row" + (m.done ? " done" : "");
 
         var checkBtn = document.createElement("button");
-        checkBtn.className = "check-box";
+        checkBtn.className = "check-box" + (m.done ? " pop-anim" : "");
         if (m.done){
           checkBtn.style.background = cat.color;
           checkBtn.style.borderColor = cat.color;
@@ -1021,14 +1217,30 @@
   }
 
   function switchTab(tab){
-    document.getElementById("tab-missions").style.display = tab === "missions" ? "block" : "none";
-    document.getElementById("tab-schedules").style.display = tab === "schedules" ? "block" : "none";
+    var panels = { missions:"tab-missions", schedules:"tab-schedules", exercise:"tab-exercise", study:"tab-study" };
+    Object.keys(panels).forEach(function(key){
+      var el = document.getElementById(panels[key]);
+      if (key === tab){
+        el.style.display = "block";
+        el.classList.remove("tab-content-enter");
+        void el.offsetWidth; // restart animation
+        el.classList.add("tab-content-enter");
+      } else {
+        el.style.display = "none";
+      }
+    });
     document.getElementById("tabbtn-missions").classList.toggle("active", tab === "missions");
     document.getElementById("tabbtn-schedules").classList.toggle("active", tab === "schedules");
+    document.getElementById("tabbtn-exercise").classList.toggle("active", tab === "exercise");
+    document.getElementById("tabbtn-study").classList.toggle("active", tab === "study");
     if (tab === "schedules") renderSchedulesTab();
+    if (tab === "exercise") renderExerciseTab();
+    if (tab === "study") renderStudyTab();
   }
   document.getElementById("tabbtn-missions").addEventListener("click", function(){ switchTab("missions"); });
   document.getElementById("tabbtn-schedules").addEventListener("click", function(){ switchTab("schedules"); });
+  document.getElementById("tabbtn-exercise").addEventListener("click", function(){ switchTab("exercise"); });
+  document.getElementById("tabbtn-study").addEventListener("click", function(){ switchTab("study"); });
 
   function esc(str){
     var d = document.createElement("div");
@@ -1237,7 +1449,7 @@
         row.className = "activity-row";
 
         var btn = document.createElement("button");
-        btn.className = "three-check" + (v === true ? " state-check" : v === false ? " state-x" : "");
+        btn.className = "three-check" + (v === true ? " state-check pop-anim" : v === false ? " state-x pop-anim" : "");
         btn.innerHTML = v === true
           ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
           : v === false
@@ -1381,6 +1593,388 @@
       '</div>';
     body.insertAdjacentHTML("beforeend", statsHtml);
   }
+
+  // ================= EJERCICIO =================
+  var EXERCISE_TYPES = {
+    cardio:   { label:"Cardio",   color:"#ef4444", met:8   }, // running/jump rope/etc, used as default MET
+    caminar:  { label:"Caminar",  color:"#60a5fa", met:3.5 },
+    fuerza:   { label:"Fuerza",   color:"#4fd1c5", met:5   },
+    ciclismo: { label:"Ciclismo", color:"#a78bfa", met:7   },
+    natacion: { label:"Natación", color:"#34d399", met:8   },
+    yoga:     { label:"Yoga",     color:"#f2b705", met:2.5 },
+    otro:     { label:"Otro",     color:"#f472b6", met:5   }
+  };
+
+  function todaysExercise(){
+    var k = dateKey(new Date());
+    return state.exerciseLog.filter(function(e){ return e.date === k; });
+  }
+  function minutesForDate(k){
+    return state.exerciseLog.filter(function(e){ return e.date === k; }).reduce(function(s,e){ return s + e.minutes; }, 0);
+  }
+  function caloriesForEntry(e){
+    if (!state.weightKg) return null;
+    var met = (EXERCISE_TYPES[e.category] || EXERCISE_TYPES.otro).met;
+    return Math.round(met * state.weightKg * (e.minutes / 60));
+  }
+  function addExerciseEntry(category, name, minutes){
+    state.exerciseLog.push({ id:"ex"+(idCounter++), date: dateKey(new Date()), category: category, text: name, minutes: minutes });
+    saveState();
+  }
+  function removeExerciseEntry(id){
+    state.exerciseLog = state.exerciseLog.filter(function(e){ return e.id !== id; });
+    saveState();
+    renderExerciseTab();
+  }
+
+  function promptWeight(){
+    var current = state.weightKg || "";
+    var val = prompt("Tu peso en kg (para calcular calorías estimadas):", current);
+    if (val === null) return;
+    var n = parseFloat(val);
+    if (!isNaN(n) && n > 0){
+      state.weightKg = n;
+      saveState();
+      renderExerciseTab();
+    }
+  }
+
+  var exAddBoxOpen = false;
+
+  document.getElementById("ex-edit-goal-btn").addEventListener("click", function(){
+    var val = prompt("Meta de minutos de ejercicio al día:", state.exerciseGoalMin);
+    if (val === null) return;
+    var n = parseInt(val, 10);
+    if (!isNaN(n) && n > 0){
+      state.exerciseGoalMin = n;
+      saveState();
+      renderExerciseTab();
+    }
+  });
+
+  document.getElementById("ex-add-toggle").addEventListener("click", function(){
+    exAddBoxOpen = !exAddBoxOpen;
+    document.getElementById("ex-add-box").style.display = exAddBoxOpen ? "block" : "none";
+  });
+
+  document.getElementById("ex-confirm-add").addEventListener("click", function(){
+    var nameInput = document.getElementById("ex-name-input");
+    var minInput = document.getElementById("ex-minutes-input");
+    var name = nameInput.value.trim();
+    var minutes = parseInt(minInput.value, 10);
+    if (!name || !minutes || minutes <= 0) return;
+    addExerciseEntry(state.exNewCat, name, minutes);
+    pushLog('Ejercicio registrado: "' + name + '" (' + minutes + ' min)', "xp");
+    nameInput.value = "";
+    minInput.value = "";
+    exAddBoxOpen = false;
+    document.getElementById("ex-add-box").style.display = "none";
+    renderExerciseTab();
+  });
+
+  document.getElementById("ex-weight-label").addEventListener("click", promptWeight);
+
+  // build exercise category chips once
+  var exCatRow = document.getElementById("ex-cat-row");
+  Object.keys(EXERCISE_TYPES).forEach(function(key){
+    var t = EXERCISE_TYPES[key];
+    var chip = document.createElement("button");
+    chip.className = "cat-chip" + (state.exNewCat === key ? " active" : "");
+    chip.textContent = t.label;
+    if (state.exNewCat === key){ chip.style.borderColor = t.color; chip.style.color = t.color; }
+    chip.addEventListener("click", function(){
+      state.exNewCat = key;
+      Array.prototype.forEach.call(exCatRow.children, function(c, i){
+        var k = Object.keys(EXERCISE_TYPES)[i];
+        var tt = EXERCISE_TYPES[k];
+        var active = k === key;
+        c.style.borderColor = active ? tt.color : "";
+        c.style.color = active ? tt.color : "";
+      });
+    });
+    exCatRow.appendChild(chip);
+  });
+
+  function renderExerciseTab(){
+    var todayEntries = todaysExercise();
+    var totalMin = todayEntries.reduce(function(s,e){ return s + e.minutes; }, 0);
+    var goal = state.exerciseGoalMin;
+
+    document.getElementById("ex-minutes-today").textContent = totalMin;
+    document.getElementById("ex-goal-label").textContent = "/ " + goal + " min";
+    document.getElementById("ex-goal-fill").style.width = Math.min(100, (totalMin/goal)*100) + "%";
+
+    var listEl = document.getElementById("ex-today-list");
+    listEl.innerHTML = "";
+    if (todayEntries.length === 0){
+      listEl.innerHTML = '<div style="font-size:12.5px; color:var(--text-faint); padding:6px 2px;">Aún no registras ejercicio hoy.</div>';
+    } else {
+      todayEntries.forEach(function(e){
+        var t = EXERCISE_TYPES[e.category] || EXERCISE_TYPES.otro;
+        var kcal = caloriesForEntry(e);
+        var row = document.createElement("div");
+        row.className = "ex-entry-row";
+        row.innerHTML =
+          '<span class="ex-entry-dot" style="background:'+t.color+';"></span>' +
+          '<span class="ex-entry-name">'+esc(e.text)+' <span style="color:var(--text-faint); font-size:11px;">('+t.label+')</span></span>' +
+          '<span class="ex-entry-meta">'+e.minutes+' min' + (kcal !== null ? " · " + kcal + " kcal" : "") + '</span>';
+        var del = document.createElement("button");
+        del.className = "trash-btn";
+        del.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0l-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>';
+        del.addEventListener("click", function(){ removeExerciseEntry(e.id); });
+        row.appendChild(del);
+        listEl.appendChild(row);
+      });
+    }
+    if (!state.weightKg){
+      listEl.insertAdjacentHTML("beforeend", '<div class="missing-box" style="margin-top:10px;">Agrega tu peso (ícono junto a "PASOS DE HOY") para ver calorías estimadas.</div>');
+    }
+
+    // week chart
+    var chart = document.getElementById("ex-week-chart");
+    chart.innerHTML = "";
+    var row = document.createElement("div");
+    row.className = "week-chart-row";
+    var maxMin = 1;
+    var days = [];
+    for (var i=6; i>=0; i--){
+      var d = new Date(); d.setDate(d.getDate()-i);
+      var k = dateKey(d);
+      var m = minutesForDate(k);
+      maxMin = Math.max(maxMin, m);
+      days.push({d:d, k:k, m:m});
+    }
+    days.forEach(function(item){
+      var col = document.createElement("div");
+      col.className = "week-chart-col";
+      var barH = Math.max(3, (item.m / maxMin) * 90);
+      var bar = document.createElement("div");
+      bar.className = "week-chart-bar" + (item.m > 0 ? " has-value" : "");
+      bar.style.height = barH + "px";
+      bar.title = item.m + " min";
+      var lbl = document.createElement("div");
+      lbl.className = "week-chart-label";
+      lbl.textContent = ["D","L","M","X","J","V","S"][item.d.getDay()];
+      col.appendChild(bar);
+      col.appendChild(lbl);
+      row.appendChild(col);
+    });
+    chart.appendChild(row);
+
+    document.getElementById("ex-weight-label").textContent = state.weightKg ? ("Peso: " + state.weightKg + "kg ✎") : "Agregar peso para ver calorías ✎";
+
+    if (state.username) saveState();
+  }
+
+  // ================= ESTUDIO (POMODORO) =================
+  var RING_CIRC = 2 * Math.PI * 88; // ≈553
+
+  var timer = {
+    mode: "focus",          // 'focus' | 'short' | 'long'
+    remainingSec: state.pomodoro.focusMin * 60,
+    running: false,
+    cyclesDone: 0,
+    intervalId: null
+  };
+
+  function modeMinutes(mode){
+    if (mode === "focus") return state.pomodoro.focusMin;
+    if (mode === "short") return state.pomodoro.shortMin;
+    return state.pomodoro.longMin;
+  }
+  function modeLabel(mode){
+    return mode === "focus" ? "ENFOQUE" : mode === "short" ? "DESCANSO CORTO" : "DESCANSO LARGO";
+  }
+
+  function resetTimerToMode(mode){
+    timer.mode = mode;
+    timer.remainingSec = modeMinutes(mode) * 60;
+    renderTimerFace();
+  }
+
+  function startPauseTimer(){
+    if (timer.running){
+      timer.running = false;
+      clearInterval(timer.intervalId);
+    } else {
+      timer.running = true;
+      timer.intervalId = setInterval(function(){
+        timer.remainingSec--;
+        if (timer.remainingSec <= 0){
+          timerComplete();
+        } else {
+          renderTimerFace();
+        }
+      }, 1000);
+    }
+    renderTimerFace();
+  }
+
+  function timerComplete(){
+    clearInterval(timer.intervalId);
+    timer.running = false;
+    if (timer.mode === "focus"){
+      state.studyLog.push({ id:"st"+(idCounter++), date: dateKey(new Date()), minutes: state.pomodoro.focusMin });
+      pushLog("Sesión de estudio completada: +" + state.pomodoro.focusMin + " min de enfoque.", "xp");
+      timer.cyclesDone++;
+      var nextMode = (timer.cyclesDone % state.pomodoro.cyclesBeforeLong === 0) ? "long" : "short";
+      resetTimerToMode(nextMode);
+    } else {
+      resetTimerToMode("focus");
+    }
+    saveState();
+    renderStudyTab();
+  }
+
+  function skipTimer(){
+    clearInterval(timer.intervalId);
+    timer.running = false;
+    if (timer.mode === "focus"){
+      var nextMode = ((timer.cyclesDone) % state.pomodoro.cyclesBeforeLong === state.pomodoro.cyclesBeforeLong - 1) ? "long" : "short";
+      resetTimerToMode(nextMode);
+    } else {
+      resetTimerToMode("focus");
+    }
+    renderTimerFace();
+  }
+
+  function resetTimer(){
+    clearInterval(timer.intervalId);
+    timer.running = false;
+    timer.remainingSec = modeMinutes(timer.mode) * 60;
+    renderTimerFace();
+  }
+
+  document.getElementById("timer-toggle-btn").addEventListener("click", startPauseTimer);
+  document.getElementById("timer-reset-btn").addEventListener("click", resetTimer);
+  document.getElementById("timer-skip-btn").addEventListener("click", skipTimer);
+
+  document.getElementById("timer-settings-btn").addEventListener("click", function(){
+    var f = prompt("Minutos de enfoque:", state.pomodoro.focusMin);
+    if (f === null) return;
+    var s = prompt("Minutos de descanso corto:", state.pomodoro.shortMin);
+    if (s === null) return;
+    var l = prompt("Minutos de descanso largo:", state.pomodoro.longMin);
+    if (l === null) return;
+    var fn = parseInt(f,10), sn = parseInt(s,10), ln = parseInt(l,10);
+    if (fn>0) state.pomodoro.focusMin = fn;
+    if (sn>0) state.pomodoro.shortMin = sn;
+    if (ln>0) state.pomodoro.longMin = ln;
+    saveState();
+    if (!timer.running) resetTimerToMode(timer.mode);
+  });
+
+  document.getElementById("edu-toggle-btn").addEventListener("click", function(){
+    var content = document.getElementById("edu-content");
+    var btn = document.getElementById("edu-toggle-btn");
+    var isOpen = content.style.display === "block";
+    if (isOpen){
+      content.style.maxHeight = "0px";
+      btn.classList.remove("open");
+      setTimeout(function(){ content.style.display = "none"; }, 350);
+    } else {
+      content.style.display = "block";
+      btn.classList.add("open");
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  });
+
+  function renderTimerFace(){
+    var mm = Math.floor(timer.remainingSec / 60);
+    var ss = timer.remainingSec % 60;
+    document.getElementById("timer-display").textContent =
+      (mm < 10 ? "0" : "") + mm + ":" + (ss < 10 ? "0" : "") + ss;
+    document.getElementById("timer-mode-label").textContent = modeLabel(timer.mode);
+
+    var totalSec = modeMinutes(timer.mode) * 60;
+    var progress = 1 - (timer.remainingSec / totalSec);
+    var ring = document.getElementById("timer-ring-progress");
+    ring.style.strokeDashoffset = RING_CIRC * (1 - progress);
+    ring.setAttribute("class", "timer-ring-progress" + (timer.mode === "short" ? " mode-short" : timer.mode === "long" ? " mode-long" : ""));
+
+    var wrap = document.getElementById("timer-ring-wrap");
+    wrap.classList.toggle("running", timer.running);
+
+    var icon = document.getElementById("timer-toggle-icon");
+    icon.innerHTML = timer.running
+      ? '<rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/>'
+      : '<path d="M8 5v14l11-7z"/>';
+
+    var dotsWrap = document.getElementById("timer-dots");
+    dotsWrap.innerHTML = "";
+    var posInCycle = timer.cyclesDone % state.pomodoro.cyclesBeforeLong;
+    for (var i=0; i<state.pomodoro.cyclesBeforeLong; i++){
+      var dot = document.createElement("span");
+      dot.className = "timer-dot" + (i < posInCycle ? " filled" : "");
+      dotsWrap.appendChild(dot);
+    }
+  }
+
+  function todaysStudyMinutes(){
+    var k = dateKey(new Date());
+    return state.studyLog.filter(function(s){ return s.date === k; }).reduce(function(sum,s){ return sum + s.minutes; }, 0);
+  }
+  function studyMinutesForDate(k){
+    return state.studyLog.filter(function(s){ return s.date === k; }).reduce(function(sum,s){ return sum + s.minutes; }, 0);
+  }
+
+  function renderStudyTab(){
+    renderTimerFace();
+    document.getElementById("study-minutes-today").textContent = todaysStudyMinutes() + " min estudiados hoy";
+
+    var chart = document.getElementById("study-week-chart");
+    chart.innerHTML = "";
+    var row = document.createElement("div");
+    row.className = "week-chart-row";
+    var maxMin = 1;
+    var days = [];
+    for (var i=6; i>=0; i--){
+      var d = new Date(); d.setDate(d.getDate()-i);
+      var k = dateKey(d);
+      var m = studyMinutesForDate(k);
+      maxMin = Math.max(maxMin, m);
+      days.push({d:d, m:m});
+    }
+    days.forEach(function(item){
+      var col = document.createElement("div");
+      col.className = "week-chart-col";
+      var barH = Math.max(3, (item.m / maxMin) * 90);
+      var bar = document.createElement("div");
+      bar.className = "week-chart-bar" + (item.m > 0 ? " has-value" : "");
+      bar.style.height = barH + "px";
+      bar.style.background = item.m > 0 ? "linear-gradient(180deg,var(--xp),#2fa89c)" : "";
+      bar.title = item.m + " min";
+      var lbl = document.createElement("div");
+      lbl.className = "week-chart-label";
+      lbl.textContent = ["D","L","M","X","J","V","S"][item.d.getDay()];
+      col.appendChild(bar);
+      col.appendChild(lbl);
+      row.appendChild(col);
+    });
+    chart.appendChild(row);
+
+    var todayK = dateKey(new Date());
+    var todaySessions = state.studyLog.filter(function(s){ return s.date === todayK; });
+    var listEl = document.getElementById("study-today-list");
+    listEl.innerHTML = "";
+    if (todaySessions.length === 0){
+      listEl.innerHTML = '<div style="font-size:12.5px; color:var(--text-faint); padding:6px 2px;">Aún no completas ninguna sesión de enfoque hoy.</div>';
+    } else {
+      todaySessions.forEach(function(s, idx){
+        var row2 = document.createElement("div");
+        row2.className = "ex-entry-row";
+        row2.innerHTML =
+          '<span class="ex-entry-dot" style="background:var(--xp);"></span>' +
+          '<span class="ex-entry-name">Sesión de enfoque #'+(idx+1)+'</span>' +
+          '<span class="ex-entry-meta">'+s.minutes+' min</span>';
+        listEl.appendChild(row2);
+      });
+    }
+
+    if (state.username) saveState();
+  }
+
+  resetTimerToMode("focus");
 
 })();
 </script>
