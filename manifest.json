@@ -1,10 +1,10 @@
 {
-  "id": "/",
+  "id": "/SAVE/",
   "name": "SAVE",
   "short_name": "SAVE",
   "description": "SAVE convierte tu vida en un RPG: cumple misiones diarias, sube de nivel y no dejes que tu HP llegue a cero.",
-  "start_url": ".",
-  "scope": "/",
+  "start_url": "/SAVE/index.html",
+  "scope": "/SAVE/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#05070c",
